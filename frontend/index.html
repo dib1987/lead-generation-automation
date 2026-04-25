@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Loading...</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── CSS variables ── applied by JS from FORM_CONFIG */
+    :root {
+      --primary:       #2D6A4F;
+      --primary-dark:  #1B4332;
+      --accent:        #D4703A;
+      --accent-light:  #E8906A;
+      --sand:          #F5F0E8;
+      --sand-dark:     #EDE8DC;
+      --text-dark:     #1A1A1A;
+      --text-mid:      #4A4A4A;
+      --text-light:    #8A8A8A;
+      --hero-gradient: linear-gradient(135deg, #1B4332 0%, #2D6A4F 40%, #D4703A 100%);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: 'Jost', sans-serif;
+      background: var(--sand);
+      color: var(--text-dark);
+      margin: 0;
+      min-height: 100vh;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: var(--hero-gradient);
+      position: relative;
+      overflow: hidden;
+      padding: 4rem 1.5rem 5rem;
+      text-align: center;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 580px;
+      margin: 0 auto;
+      animation: fadeDown 0.7s ease both;
+    }
+
+    .hero-badge {
+      width: 62px;
+      height: 62px;
+      border: 1.5px solid rgba(255,255,255,0.45);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: white;
+      letter-spacing: 0.06em;
+      margin: 0 auto 1.75rem;
+    }
+
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      font-weight: 300;
+      color: white;
+      letter-spacing: 0.02em;
+      line-height: 1.1;
+      margin: 0 0 0.5rem;
+    }
+
+    .hero-divider {
+      width: 38px;
+      height: 1px;
+      background: rgba(255,255,255,0.38);
+      margin: 1.4rem auto;
+    }
+
+    .hero-tagline {
+      font-size: 0.72rem;
+      font-weight: 400;
+      color: rgba(255,255,255,0.7);
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      margin: 0;
+    }
+
+    /* Decorative blob */
+    .hero-deco {
+      position: absolute;
+      bottom: -10px;
+      right: -20px;
+      width: 260px;
+      opacity: 0.06;
+      pointer-events: none;
+    }
+
+    /* ── Page body ── */
+    .page-body {
+      background: var(--sand);
+      padding: 2.5rem 1rem 4rem;
+    }
+
+    .page-inner {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    /* ── Form card ── */
+    .form-card {
+      background: white;
+      border-radius: 2px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.09), 0 2px 8px rgba(0,0,0,0.04);
+      padding: 2.5rem 2rem;
+      animation: fadeUp 0.55s ease both;
+    }
+
+    @media (min-width: 640px) {
+      .form-card { padding: 3rem 3.5rem; }
+    }
+
+    .form-intro {
+      font-size: 0.875rem;
+      color: var(--text-mid);
+      line-height: 1.75;
+      border-left: 2px solid var(--accent);
+      padding-left: 1rem;
+      margin: 0 0 2.25rem;
+      font-style: italic;
+    }
+
+    /* ── Sections ── */
+    .form-section + .form-section {
+      margin-top: 2.25rem;
+    }
+
+    .section-heading {
+      font-family: 'Jost', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0 0 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #F0EBE2;
+      position: relative;
+    }
+
+    .section-heading::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 28px;
+      height: 2px;
+      background: var(--accent);
+    }
+
+    /* ── Field grid ── */
+    .fields-grid {
+      display: grid;
+      gap: 1.1rem;
+    }
+
+    .fields-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+    .fields-grid.cols-1 { grid-template-columns: 1fr; }
+
+    .field-full { grid-column: 1 / -1; }
+
+    @media (max-width: 560px) {
+      .fields-grid.cols-2 { grid-template-columns: 1fr; }
+      .field-full         { grid-column: 1; }
+    }
+
+    /* ── Field group ── */
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .field-label {
+      font-size: 0.67rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-light);
+    }
+
+    .field-required-star {
+      color: var(--accent);
+      margin-left: 2px;
+    }
+
+    /* ── Inputs ── */
+    .f-input,
+    .f-select,
+    .f-textarea {
+      width: 100%;
+      padding: 0.72rem 0.9rem;
+      border: 1px solid #E5DDD3;
+      border-radius: 1px;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 400;
+      color: var(--text-dark);
+      background: #FDFAF7;
+      outline: none;
+      transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .f-input:focus,
+    .f-select:focus,
+    .f-textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(45,106,79,0.09);
+      background: white;
+    }
+
+    .f-input.has-error,
+    .f-select.has-error,
+    .f-textarea.has-error {
+      border-color: #C0392B;
+      box-shadow: 0 0 0 3px rgba(192,57,43,0.07);
+    }
+
+    .f-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%238A8A8A' stroke-width='1.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.9rem center;
+      padding-right: 2.4rem;
+      cursor: pointer;
+    }
+
+    .f-textarea {
+      resize: vertical;
+      min-height: 96px;
+      line-height: 1.6;
+    }
+
+    .field-error {
+      font-size: 0.68rem;
+      color: #C0392B;
+      display: none;
+      margin-top: 1px;
+    }
+    .field-error.show { display: block; }
+
+    /* ── Submit ── */
+    .submit-wrap { margin-top: 2.5rem; }
+
+    .submit-btn {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 1px;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .submit-btn:hover:not(:disabled)  { background: var(--primary-dark); }
+    .submit-btn:active:not(:disabled) { transform: scale(0.99); }
+    .submit-btn:disabled              { opacity: 0.65; cursor: not-allowed; }
+
+    .btn-arrow { transition: transform 0.2s; }
+    .submit-btn:hover:not(:disabled) .btn-arrow { transform: translateX(4px); }
+
+    .spinner {
+      width: 17px;
+      height: 17px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.65s linear infinite;
+      display: none;
+    }
+
+    .submit-btn.loading .btn-label  { display: none; }
+    .submit-btn.loading .btn-arrow  { display: none; }
+    .submit-btn.loading .spinner    { display: block; }
+
+    /* ── Global error ── */
+    .global-error {
+      display: none;
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      background: #FDF2F2;
+      border: 1px solid #FCCACA;
+      border-radius: 1px;
+      font-size: 0.82rem;
+      color: #C0392B;
+      line-height: 1.5;
+    }
+    .global-error.show { display: block; }
+
+    /* ── Success ── */
+    .success-card {
+      display: none;
+      background: white;
+      border-radius: 2px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.09);
+      padding: 4rem 2rem;
+      text-align: center;
+      animation: fadeUp 0.5s ease both;
+    }
+    .success-card.show { display: block; }
+
+    .success-ring {
+      width: 66px;
+      height: 66px;
+      border: 1.5px solid var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.75rem;
+    }
+
+    .success-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.2rem;
+      font-weight: 300;
+      color: var(--primary);
+      margin: 0 0 1rem;
+    }
+
+    .success-msg {
+      font-size: 0.875rem;
+      color: var(--text-mid);
+      line-height: 1.8;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+
+    .success-divider {
+      width: 36px;
+      height: 1px;
+      background: var(--accent);
+      margin: 1.5rem auto;
+    }
+
+    /* ── Spam note ── */
+    .spam-note {
+      text-align: center;
+      font-size: 0.72rem;
+      color: var(--text-light);
+      line-height: 1.7;
+      margin-top: 1.25rem;
+    }
+
+    .spam-note strong {
+      color: var(--text-mid);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Footer note ── */
+    .footer-note {
+      text-align: center;
+      font-size: 0.68rem;
+      color: var(--text-light);
+      letter-spacing: 0.06em;
+      margin-top: 1.5rem;
+    }
+
+    /* ── Context / Trust section ── */
+    .context-section {
+      background: var(--primary-dark);
+      color: white;
+      padding: 3.5rem 1.5rem 4rem;
+    }
+
+    .context-inner {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .context-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.55rem;
+      font-weight: 300;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.92);
+      margin: 0 0 2rem;
+      text-align: center;
+    }
+
+    .context-heading::after {
+      content: '';
+      display: block;
+      width: 32px;
+      height: 1px;
+      background: var(--accent);
+      margin: 0.7rem auto 0;
+    }
+
+    .context-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .context-step {
+      display: flex;
+      gap: 1.2rem;
+      align-items: flex-start;
+    }
+
+    .step-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.75rem;
+      font-weight: 300;
+      color: var(--accent);
+      line-height: 1;
+      min-width: 2.1rem;
+      padding-top: 0.05rem;
+    }
+
+    .context-step strong {
+      display: block;
+      font-family: 'Jost', sans-serif;
+      font-weight: 500;
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+      color: rgba(255,255,255,0.95);
+      margin-bottom: 0.3rem;
+    }
+
+    .context-step p {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.58);
+      line-height: 1.75;
+      margin: 0;
+    }
+
+    .trust-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+      justify-content: center;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-top: 2rem;
+    }
+
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.05em;
+    }
+
+    .trust-item svg { opacity: 0.65; flex-shrink: 0; }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0);    }
+    }
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-12px); }
+      to   { opacity: 1; transform: translateY(0);     }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Hero ── -->
+  <header class="hero" id="js-hero">
+    <div class="hero-inner">
+      <div class="hero-badge" id="js-badge"></div>
+      <h1 class="hero-title" id="js-company-name"></h1>
+      <div class="hero-divider"></div>
+      <p class="hero-tagline" id="js-tagline"></p>
+    </div>
+    <svg class="hero-deco" viewBox="0 0 220 260" fill="white" xmlns="http://www.w3.org/2000/svg">
+      <path d="M110 10 C140 8 175 28 195 55 C215 82 220 118 215 150 C210 182 195 208 175 228 C155 248 128 260 100 258 C72 256 48 240 30 218 C12 196 2 168 2 140 C2 112 14 84 30 62 C46 40 70 18 100 12 Z"/>
+      <ellipse cx="80" cy="180" rx="18" ry="26" transform="rotate(-15 80 180)"/>
+      <ellipse cx="145" cy="90" rx="14" ry="20" transform="rotate(10 145 90)"/>
+    </svg>
+  </header>
+
+  <!-- ── Page body ── -->
+  <div class="page-body">
+    <div class="page-inner">
+
+      <!-- Form card -->
+      <div class="form-card" id="js-form-card">
+        <p class="form-intro">
+          Send us your details and one of our expert Travel Designers will craft a tailor-made itinerary just for you.
+        </p>
+        <form id="js-form" novalidate></form>
+        <div class="global-error" id="js-global-error"></div>
+        <p class="spam-note">
+          If you have not yet received the response from your Travel Designer,
+          please check your <strong>SPAM FOLDER</strong>.
+        </p>
+      </div>
+
+      <!-- Success card (hidden until submit succeeds) -->
+      <div class="success-card" id="js-success-card">
+        <div class="success-ring">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none"
+               stroke="var(--primary)" stroke-width="1.5"
+               stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <h2 class="success-title">You're All Set</h2>
+        <div class="success-divider"></div>
+        <p class="success-msg" id="js-success-msg"></p>
+      </div>
+
+      <p class="footer-note">
+        Your information is handled with care and never shared with third parties.
+      </p>
+    </div>
+  </div>
+
+  <!-- ── What Happens Next / Trust ── -->
+  <section class="context-section">
+    <div class="context-inner">
+
+      <h3 class="context-heading">What Happens Next</h3>
+
+      <div class="context-steps">
+        <div class="context-step">
+          <span class="step-num">01</span>
+          <div>
+            <strong>Your enquiry is received</strong>
+            <p>We review your destination interest and travel details, usually within the hour. A personalised welcome email lands in your inbox shortly after — <em style="color:rgba(255,255,255,0.75);font-style:normal;">if you don't see it, please check your spam or junk folder.</em></p>
+          </div>
+        </div>
+        <div class="context-step">
+          <span class="step-num">02</span>
+          <div>
+            <strong>A Travel Designer reaches out</strong>
+            <p>A dedicated Africa specialist will contact you within 24 hours via your preferred channel — WhatsApp, email, or call — to discuss your journey in detail.</p>
+          </div>
+        </div>
+        <div class="context-step">
+          <span class="step-num">03</span>
+          <div>
+            <strong>Your itinerary takes shape</strong>
+            <p>We craft a fully tailor-made proposal covering flights, lodges, transfers, and curated experiences — no templates, no packages, nothing off the shelf.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="trust-row">
+        <div class="trust-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          Your data is private &amp; never sold
+        </div>
+        <div class="trust-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          Response within 24 hours
+        </div>
+        <div class="trust-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          No obligation to book
+        </div>
+        <div class="trust-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          Specialists in African travel
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <script>
+    // ═══════════════════════════════════════════════════════════
+    //  FORM_CONFIG — change this object to switch domains.
+    //  Nothing below this block should need editing.
+    // ═══════════════════════════════════════════════════════════
+    const FORM_CONFIG = {
+      company: {
+        name:            "Africa Horizons Travel",
+        tagline:         "Tailor-made journeys across the African continent",
+        logo_text:       "AH",
+        primary_color:   "#2D6A4F",
+        accent_color:    "#D4703A",
+        hero_gradient:   "linear-gradient(135deg, #1B4332 0%, #2D6A4F 40%, #D4703A 100%)",
+      },
+      api: {
+        endpoint:        "/api/v1/leads/africa_travel",
+        success_message: "Thank you! Your Travel Designer will contact you within 24 hours. Please check your spam folder if you don't hear from us.",
+      },
+      sections: [
+        {
+          title: "Personal Information",
+          fields: [
+            { name: "full_name", label: "Full Name",      type: "text",  required: true,  placeholder: "Your full name"     },
+            { name: "email",     label: "Email Address",  type: "email", required: true,  placeholder: "you@example.com"    },
+          ]
+        },
+        {
+          title: "How Can We Reach You?",
+          fields: [
+            {
+              name: "phone_country_code", label: "Country Code", type: "select", required: true,
+              placeholder: "Country code",
+              options: [
+                "+1 (USA/CA)","+44 (UK)","+91 (India)","+27 (South Africa)",
+                "+254 (Kenya)","+255 (Tanzania)","+250 (Rwanda)","+61 (Australia)",
+                "+49 (Germany)","+33 (France)","+39 (Italy)","+31 (Netherlands)",
+                "+34 (Spain)","+46 (Sweden)","+41 (Switzerland)","+971 (UAE)",
+                "+65 (Singapore)","+64 (New Zealand)"
+              ]
+            },
+            { name: "phone_number", label: "Cell Phone", type: "tel", required: true, placeholder: "Phone number" },
+            {
+              name: "preferred_contact_method", label: "Preferred Contact Method", type: "select", required: true,
+              placeholder: "How should we reach you?",
+              options: ["WhatsApp", "Email", "Call"]
+            },
+          ]
+        },
+        {
+          title: "Your Destination",
+          fields: [
+            {
+              name: "destination", label: "Destination Interest", type: "select", required: true,
+              placeholder: "Select a destination",
+              options: [
+                "Kenya · Masai Mara Safari",
+                "Tanzania · Serengeti National Park",
+                "Tanzania · Zanzibar Beach",
+                "South Africa · Cape Town & Winelands",
+                "South Africa · Kruger National Park",
+                "Rwanda · Gorilla Trekking",
+                "Uganda · Gorilla & Chimp Trek",
+                "Botswana · Okavango Delta",
+                "Zimbabwe · Victoria Falls",
+                "Zambia · Victoria Falls & Kafue",
+                "Namibia · Desert & Dunes Safari",
+                "Morocco · Imperial Cities Tour",
+                "Egypt · Nile & Pyramids",
+                "Ethiopia · Historical Circuit",
+                "Madagascar · Wildlife & Nature",
+                "Multiple Destinations (Custom Route)"
+              ]
+            }
+          ]
+        },
+        {
+          title: "Estimated Travel Date",
+          fields: [
+            {
+              name: "travel_month", label: "Month", type: "select", required: true,
+              placeholder: "Month",
+              options: ["January","February","March","April","May","June",
+                        "July","August","September","October","November","December"]
+            },
+            {
+              name: "travel_year", label: "Year", type: "select", required: true,
+              placeholder: "Year",
+              options: ["2025","2026","2027","2028"]
+            }
+          ]
+        },
+        {
+          title: "Your Group",
+          fields: [
+            {
+              name: "adults", label: "Number of Adults", type: "select", required: true,
+              placeholder: "Adults",
+              options: ["1","2","3","4","5","6","7","8","9","10","10+"]
+            },
+            {
+              name: "children_under_12", label: "Kids under 12", type: "select", required: false,
+              placeholder: "Children",
+              options: ["0","1","2","3","4","5","5+"]
+            },
+            {
+              name: "adult_age_range", label: "Age Range of Adults", type: "select", required: false,
+              placeholder: "Age range",
+              options: ["18–25","26–35","36–45","46–55","56–65","65+","Mixed ages"]
+            },
+            {
+              name: "trip_duration_days", label: "Trip Duration", type: "select", required: false,
+              placeholder: "How many days?",
+              options: ["3–5 days","6–8 days","9–12 days","13–17 days","18–21 days","22+ days","Flexible"]
+            }
+          ]
+        },
+        {
+          title: "Travel Preferences",
+          fields: [
+            {
+              name: "accommodation_preference", label: "Accommodation Category", type: "select", required: false,
+              placeholder: "Preferred accommodation",
+              options: ["3-star (Standard)","4-star (Superior)","5-star (Luxury)",
+                        "Boutique / Safari Lodge","Ultra-luxury / Exclusive","Mixed (flexible)"]
+            },
+            {
+              name: "trip_motivation", label: "Motivation for Trip", type: "select", required: false,
+              placeholder: "What brings you?",
+              options: ["Honeymoon / Romance","Family Holiday","Adventure & Wildlife",
+                        "Cultural Exploration","Photography Safari","Wellness & Relaxation",
+                        "Bucket List Trip","Corporate / Group Retreat","Anniversary / Celebration","Other"]
+            },
+            {
+              name: "budget_range", label: "Budget per Person (approx.)", type: "select", required: false,
+              placeholder: "Budget range",
+              options: ["Under $3,000","$3,000–$7,000","$7,000–$15,000",
+                        "$15,000–$30,000","$30,000+","Prefer not to say"]
+            },
+            {
+              name: "special_requests", label: "Other Comments or Special Requests", type: "textarea", required: false,
+              placeholder: "Dietary requirements, mobility needs, special occasions, anything else…"
+            }
+          ]
+        }
+      ]
+    };
+    // ═══════════════════════════════════════════════════════════
+    //  Engine — do not edit below unless changing the engine
+    // ═══════════════════════════════════════════════════════════
+
+    /* ── Helpers ── */
+    function darken(hex, pct) {
+      const n = parseInt(hex.replace('#',''), 16);
+      const factor = 1 - pct / 100;
+      const r = Math.max(0, Math.round(((n >> 16) & 255) * factor));
+      const g = Math.max(0, Math.round(((n >> 8)  & 255) * factor));
+      const b = Math.max(0, Math.round(( n         & 255) * factor));
+      return '#' + [r,g,b].map(v => v.toString(16).padStart(2,'0')).join('');
+    }
+
+    /* ── Apply theme from config ── */
+    function applyTheme(cfg) {
+      const root = document.documentElement;
+      root.style.setProperty('--primary',      cfg.company.primary_color);
+      root.style.setProperty('--primary-dark', darken(cfg.company.primary_color, 18));
+      root.style.setProperty('--accent',       cfg.company.accent_color);
+      root.style.setProperty('--accent-light', darken(cfg.company.accent_color, -15));
+
+      document.getElementById('js-hero').style.background   = cfg.company.hero_gradient;
+      document.getElementById('js-badge').textContent       = cfg.company.logo_text;
+      document.getElementById('js-company-name').textContent = cfg.company.name;
+      document.getElementById('js-tagline').textContent     = cfg.company.tagline;
+      document.getElementById('js-success-msg').textContent = cfg.api.success_message;
+      document.title = cfg.company.name + ' — Plan Your Journey';
+    }
+
+    /* ── Build one field element ── */
+    function buildField(field) {
+      const wrap = document.createElement('div');
+      wrap.className = 'field-group';
+      if (field.type === 'textarea') wrap.classList.add('field-full');
+
+      // Label
+      const lbl = document.createElement('label');
+      lbl.className = 'field-label';
+      lbl.htmlFor = 'f-' + field.name;
+      lbl.textContent = field.label;
+      if (field.required) {
+        const star = document.createElement('span');
+        star.className = 'field-required-star';
+        star.textContent = ' *';
+        lbl.appendChild(star);
+      }
+      wrap.appendChild(lbl);
+
+      // Input element
+      let el;
+      if (field.type === 'select') {
+        el = document.createElement('select');
+        el.className = 'f-select';
+        // Placeholder (disabled)
+        const ph = document.createElement('option');
+        ph.value = '';
+        ph.textContent = field.placeholder || ('Select ' + field.label);
+        ph.disabled = true;
+        ph.selected = true;
+        el.appendChild(ph);
+        (field.options || []).forEach(opt => {
+          const o = document.createElement('option');
+          o.value = opt;
+          o.textContent = opt;
+          el.appendChild(o);
+        });
+      } else if (field.type === 'textarea') {
+        el = document.createElement('textarea');
+        el.className = 'f-textarea';
+        el.placeholder = field.placeholder || '';
+        el.rows = 4;
+      } else {
+        el = document.createElement('input');
+        el.className = 'f-input';
+        el.type = field.type;
+        el.placeholder = field.placeholder || '';
+      }
+
+      el.id   = 'f-' + field.name;
+      el.name = field.name;
+      if (field.required) el.required = true;
+
+      // Error span
+      const err = document.createElement('span');
+      err.className = 'field-error';
+      err.id = 'err-' + field.name;
+
+      // Clear error on user interaction
+      el.addEventListener('input',  () => clearErr(el, err));
+      el.addEventListener('change', () => clearErr(el, err));
+
+      wrap.appendChild(el);
+      wrap.appendChild(err);
+      return wrap;
+    }
+
+    function clearErr(el, err) {
+      el.classList.remove('has-error');
+      err.classList.remove('show');
+      err.textContent = '';
+      document.getElementById('js-global-error').classList.remove('show');
+    }
+
+    /* ── Render entire form ── */
+    function renderForm(cfg) {
+      const form = document.getElementById('js-form');
+      form.innerHTML = '';
+
+      cfg.sections.forEach(section => {
+        const sec = document.createElement('div');
+        sec.className = 'form-section';
+
+        const h = document.createElement('h3');
+        h.className = 'section-heading';
+        h.textContent = section.title;
+        sec.appendChild(h);
+
+        // Decide column count: 2-col when section has 2+ non-textarea fields
+        const nonTA = section.fields.filter(f => f.type !== 'textarea').length;
+        const cols  = nonTA >= 2 ? 'cols-2' : 'cols-1';
+
+        const grid = document.createElement('div');
+        grid.className = 'fields-grid ' + cols;
+
+        section.fields.forEach(f => grid.appendChild(buildField(f)));
+        sec.appendChild(grid);
+        form.appendChild(sec);
+      });
+
+      // Submit
+      const submitWrap = document.createElement('div');
+      submitWrap.className = 'submit-wrap';
+      submitWrap.innerHTML = `
+        <button type="submit" class="submit-btn" id="js-submit-btn">
+          <span class="btn-label">Send My Request</span>
+          <span class="btn-arrow">→</span>
+          <span class="spinner"></span>
+        </button>
+      `;
+      form.appendChild(submitWrap);
+
+      form.addEventListener('submit', handleSubmit);
+    }
+
+    /* ── Validate ── */
+    function validate(cfg) {
+      let ok = true;
+      cfg.sections.forEach(section => {
+        section.fields.forEach(field => {
+          const el  = document.getElementById('f-' + field.name);
+          const err = document.getElementById('err-' + field.name);
+          if (!el) return;
+          const val = el.value.trim();
+
+          if (field.required && !val) {
+            markErr(el, err, field.label + ' is required');
+            ok = false;
+            return;
+          }
+          if (field.type === 'email' && val) {
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+              markErr(el, err, 'Please enter a valid email address');
+              ok = false;
+            }
+          }
+        });
+      });
+      return ok;
+    }
+
+    function markErr(el, err, msg) {
+      el.classList.add('has-error');
+      err.textContent = msg;
+      err.classList.add('show');
+    }
+
+    /* ── Serialize ── */
+    function serialize(cfg) {
+      const data = {};
+      cfg.sections.forEach(s => {
+        s.fields.forEach(f => {
+          const el = document.getElementById('f-' + f.name);
+          if (el) data[f.name] = el.value.trim();
+        });
+      });
+      return data;
+    }
+
+    /* ── Submit handler ── */
+    async function handleSubmit(e) {
+      e.preventDefault();
+      const globalErr = document.getElementById('js-global-error');
+      globalErr.classList.remove('show');
+
+      if (!validate(FORM_CONFIG)) {
+        const first = document.querySelector('.f-input.has-error, .f-select.has-error, .f-textarea.has-error');
+        if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
+      const btn = document.getElementById('js-submit-btn');
+      btn.classList.add('loading');
+      btn.disabled = true;
+
+      const payload = serialize(FORM_CONFIG);
+
+      try {
+        const res = await fetch(FORM_CONFIG.api.endpoint, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify(payload),
+        });
+
+        if (res.ok) {
+          document.getElementById('js-form-card').style.display = 'none';
+          const sc = document.getElementById('js-success-card');
+          sc.classList.add('show');
+          sc.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          let msg = 'Something went wrong. Please try again.';
+          try { const d = await res.json(); msg = d.detail || d.message || msg; } catch {}
+          globalErr.textContent = msg;
+          globalErr.classList.add('show');
+          btn.classList.remove('loading');
+          btn.disabled = false;
+        }
+      } catch {
+        globalErr.textContent = 'Network error. Please check your connection and try again.';
+        globalErr.classList.add('show');
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      }
+    }
+
+    /* ── Boot ── */
+    applyTheme(FORM_CONFIG);
+    renderForm(FORM_CONFIG);
+  </script>
+</body>
+</html>

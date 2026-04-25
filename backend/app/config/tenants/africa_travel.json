@@ -1,0 +1,26 @@
+{
+  "slug": "africa_travel",
+  "name": "Africa Horizons Travel",
+  "default_campaign_slug": "africa_14day",
+
+  "company": {
+    "tagline": "Tailor-made journeys across the African continent",
+    "website": "www.africahorizonstravel.com",
+    "support_email": "hello@africahorizonstravel.com",
+    "phone": "+27 21 000 0000",
+    "signature_name": "The Africa Horizons Travel Design Team",
+    "signature_title": "Africa Horizons Travel"
+  },
+
+  "ses": {
+    "from_name": "Africa Horizons Travel",
+    "reply_to": "hello@africahorizonstravel.com"
+  },
+
+  "hubspot": {
+    "lifecycle_stage": "lead",
+    "owner_id": null,
+    "pipeline_id": null,
+    "deal_stage_id": null
+  }
+}
