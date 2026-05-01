@@ -74,7 +74,7 @@ docker-compose exec celery_worker celery -A app.workers.celery_app call workers.
 
 ## Architecture overview
 
-### Request flow (Phase 1B target)
+### Request flow
 ```
 POST /api/v1/leads/{tenant_slug}
   → validate with LeadCreateRequest schema
@@ -168,29 +168,18 @@ active → completed   (all steps sent)
 
 | Phase | Description | Status |
 |---|---|---|
-| 1A | DB models + Docker + health endpoint | **Complete** |
-| 1B | Services, schemas, Celery tasks, API route, tenant/campaign JSON configs | **TODO** |
-| 1C | Frontend HTML form for Africa Horizons Travel | **TODO** |
+| 1A | DB models, Docker, health endpoint, migrations | **Complete** |
+| 1B | Services, Celery tasks, API route, tenant/campaign configs, frontend form, live email pipeline | **Complete** |
+| 1C | Production hardening — failure alerting, SES bounce webhook, rate limiting, seed script | **In progress** |
+| 2 | Multi-tenant admin dashboard — leads view, email history, cost tracking | **Not started** |
+| 3 | Webhook handling — SES bounce/complaint, reply detection | **Not started** |
 
-### Not yet built (Phase 1B)
-- `backend/app/config/tenants/africa_travel.json`
-- `backend/app/config/campaigns/africa_14day.json`
-- `backend/app/schemas/lead.py` — `LeadCreateRequest`, `LeadResponse`
-- `backend/app/services/llm_service.py` — Claude API wrapper + `llm_cost_logs` write
-- `backend/app/services/email_service.py` — AWS SES wrapper
-- `backend/app/services/crm_service.py` — HubSpot contact upsert
-- `backend/app/services/audit_service.py` — `audit_logs` write helper
-- `backend/app/workers/tasks/process_lead.py` — Day 0 email pipeline
-- `backend/app/workers/tasks/run_followup.py` — Beat-driven follow-up task
-- `backend/app/api/v1/leads.py` — `POST /api/v1/leads/{tenant_slug}`
-
-### Not yet built (Phase 1C)
-- `frontend/index.html` — Africa Horizons Travel lead capture form
-  - Warm earthy tones (terracotta, sand, deep greens) — premium feel, not generic SaaS
-  - Full-page layout with hero image or gradient background
-  - Fields: full name, email, destination interest, travel dates, group size, budget range, special requests
-  - Tailwind CDN (no build step — single HTML file)
-  - Submits to `POST /api/v1/leads/africa_travel`
+### Key non-obvious decisions made in Phase 1B
+- **Sync DB session for Celery** (`db/sync_session.py`): asyncpg is incompatible with Celery prefork workers. A separate psycopg2-backed sync session factory is used in all Celery tasks.
+- **Explicit commit before `.delay()`** in `leads.py`: `await session.commit()` is called before `process_lead.delay()` to prevent a race condition where the Celery task starts before the Lead row is committed. This is the only place a route handler commits explicitly — `get_db()` still handles commit/rollback for everything else.
+- **Campaign row auto-bootstrap**: `process_lead` creates the Campaign DB row from JSON config on first run — no seed script needed for campaigns.
+- **Tenant row requires manual seed**: The `tenants` table row for `africa_travel` must be inserted via psql after a fresh container start. No seed script exists yet (Phase 1C task).
+- **Code fence stripping in `llm_service.py`**: Claude sometimes wraps HTML output in markdown code fences. `_strip_code_fences()` removes them before the body is sent to SES.
 
 ---
 

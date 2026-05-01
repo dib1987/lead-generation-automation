@@ -2,7 +2,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.settings import settings
+import app.db.base  # noqa: F401 — pre-loads all SQLAlchemy models before any route handler runs, breaking the circular import chain
 from app.api.v1.health import router as health_router
+from app.api.v1.leads import router as leads_router
 
 
 @asynccontextmanager
@@ -29,6 +31,7 @@ def create_app() -> FastAPI:
     )
 
     app.include_router(health_router, prefix="/api/v1")
+    app.include_router(leads_router, prefix="/api/v1/leads")
 
     return app
 

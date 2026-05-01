@@ -66,10 +66,10 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: leadgen_celery_beat
-    command: celery -A app.workers.celery_app beat --loglevel=info --scheduler celery.beat:PersistentScheduler
+    command: celery -A app.workers.celery_app beat --loglevel=info --scheduler celery.beat:PersistentScheduler --schedule /var/lib/celery/beat-schedule
     volumes:
       - ./backend:/app
-      - celery_beat_data:/app/celerybeat-schedule
+      - celery_beat_data:/var/lib/celery
     env_file:
       - .env
     depends_on:
