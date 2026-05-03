@@ -40,5 +40,14 @@ class Settings(BaseSettings):
     # HubSpot
     hubspot_api_key: str = ""
 
+    # Alerting — leave empty to disable admin failure emails
+    admin_alert_email: str = ""
+
+    # Webhooks — token guards the /webhooks/ses endpoint; leave empty to disable auth
+    webhook_secret: str = ""
+
+    # Admin dashboard — API key guards /api/v1/admin/* endpoints; leave empty to disable auth
+    admin_api_key: str = ""
+
 
 settings = Settings()

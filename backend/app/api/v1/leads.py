@@ -7,10 +7,11 @@ enqueues the process_lead Celery task, and returns 202.
 import logging
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.rate_limit import check_rate_limit
 from app.db.session import get_db
 from app.schemas.lead import LeadCreateRequest, LeadResponse
 
@@ -21,6 +22,7 @@ router = APIRouter(tags=["leads"])
 
 @router.post("/{tenant_slug}", status_code=202, response_model=LeadResponse)
 async def create_lead(
+    request: Request,
     tenant_slug: str,
     payload: LeadCreateRequest,
     session: AsyncSession = Depends(get_db),
@@ -30,6 +32,8 @@ async def create_lead(
     from app.models.campaign_enrollment import CampaignEnrollment
     from app.models.lead import Lead
     from app.models.tenant import Tenant
+
+    await check_rate_limit(request, scope="leads")
 
     # 1. Look up tenant
     result = await session.execute(

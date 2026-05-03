@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — Lead Generation</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --sand:    #F5F0E8;
+      --green:   #2D6A4F;
+      --green-l: #3D8B68;
+      --orange:  #D4703A;
+      --border:  #D9D2C5;
+      --text:    #1C1C1C;
+      --muted:   #7A7468;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: 'Jost', sans-serif; background: var(--sand); color: var(--text); margin: 0; }
+    h1,h2,h3 { font-family: 'Cormorant Garamond', serif; }
+    .btn-primary { background: var(--green); color: #fff; border: none; padding: 10px 24px; border-radius: 6px; font-family: 'Jost', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: background .2s; }
+    .btn-primary:hover { background: var(--green-l); }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 7px 16px; border-radius: 6px; font-family: 'Jost', sans-serif; font-size: 13px; cursor: pointer; transition: border-color .2s; }
+    .btn-ghost:hover { border-color: var(--green); color: var(--green); }
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+    .badge-received   { background: #EDF2FF; color: #4263EB; }
+    .badge-processing { background: #FFF4E5; color: #E67700; }
+    .badge-email_sent { background: #EBFBEE; color: #2F9E44; }
+    .badge-completed  { background: #E3FAFC; color: #0C8599; }
+    .badge-email_failed { background: #FFF5F5; color: #E03131; }
+    .badge-sent       { background: #EBFBEE; color: #2F9E44; }
+    .badge-failed     { background: #FFF5F5; color: #E03131; }
+    .badge-bounced    { background: #FFF5F5; color: #C92A2A; }
+    .badge-complaint  { background: #FFE8CC; color: #E67700; }
+    .card { background: #fff; border: 1px solid var(--border); border-radius: 10px; }
+    input, select { font-family: 'Jost', sans-serif; }
+    .sidebar-link { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 8px; color: var(--muted); font-size: 14px; font-weight: 500; cursor: pointer; transition: background .15s, color .15s; }
+    .sidebar-link:hover { background: rgba(45,106,79,.08); color: var(--green); }
+    .sidebar-link.active { background: rgba(45,106,79,.12); color: var(--green); font-weight: 600; }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); padding: 10px 14px; border-bottom: 1px solid var(--border); background: #FAFAF8; }
+    td { padding: 12px 14px; border-bottom: 1px solid #F0ECE4; font-size: 13.5px; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tbody tr { cursor: pointer; transition: background .1s; }
+    tbody tr:hover { background: #FAFAF8; }
+    .panel-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.3); z-index: 40; display: none; }
+    .panel-overlay.open { display: block; }
+    .detail-panel { position: fixed; top: 0; right: -600px; width: 580px; height: 100vh; background: #fff; border-left: 1px solid var(--border); z-index: 50; overflow-y: auto; transition: right .25s ease; }
+    .detail-panel.open { right: 0; }
+    .kpi-card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 24px; }
+    .kpi-value { font-family: 'Cormorant Garamond', serif; font-size: 42px; font-weight: 600; color: var(--green); line-height: 1; }
+    .kpi-label { font-size: 13px; color: var(--muted); margin-top: 6px; font-weight: 500; }
+    .status-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    .status-chip { display: flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: 12px; border: 1px solid var(--border); }
+    .pagination-btn { padding: 6px 14px; border: 1px solid var(--border); border-radius: 6px; background: #fff; cursor: pointer; font-size: 13px; font-family: 'Jost', sans-serif; transition: border-color .2s; }
+    .pagination-btn:disabled { opacity: .4; cursor: not-allowed; }
+    .pagination-btn:not(:disabled):hover { border-color: var(--green); color: var(--green); }
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+    .empty-state svg { width: 48px; height: 48px; stroke: var(--border); margin: 0 auto 16px; display: block; }
+    .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Login */
+    #login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .login-card { width: 100%; max-width: 400px; }
+
+    /* App shell */
+    #app-shell { display: none; height: 100vh; }
+    #app-shell.visible { display: flex; }
+    .sidebar { width: 220px; min-width: 220px; background: #fff; border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 0; }
+    .sidebar-header { padding: 20px 20px 16px; border-bottom: 1px solid var(--border); }
+    .sidebar-nav { padding: 12px 8px; flex: 1; }
+    .main-content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+    .top-bar { padding: 16px 28px; border-bottom: 1px solid var(--border); background: #fff; display: flex; align-items: center; justify-content: space-between; min-height: 60px; }
+    .content-area { padding: 28px; flex: 1; }
+    .section-title { font-size: 26px; font-weight: 600; margin: 0 0 4px; }
+    .section-sub { font-size: 13px; color: var(--muted); margin: 0 0 24px; }
+    #tab-dashboard, #tab-leads, #tab-emails { display: none; }
+    #tab-dashboard.active, #tab-leads.active, #tab-emails.active { display: block; }
+  </style>
+</head>
+<body>
+
+<!-- ─── LOGIN SCREEN ─────────────────────────────────────── -->
+<div id="login-screen">
+  <div class="login-card card" style="padding:40px">
+    <div style="text-align:center;margin-bottom:32px">
+      <div style="width:52px;height:52px;background:var(--green);border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+        <span style="color:#fff;font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700">AH</span>
+      </div>
+      <h2 style="margin:0 0 6px;font-size:24px">Admin Dashboard</h2>
+      <p style="margin:0;color:var(--muted);font-size:14px">Lead Generation System</p>
+    </div>
+    <div style="margin-bottom:16px">
+      <label style="display:block;font-size:13px;font-weight:500;margin-bottom:6px">Tenant Slug</label>
+      <input id="login-tenant" type="text" value="africa_travel" placeholder="e.g. africa_travel"
+        style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:6px;font-size:14px;outline:none" />
+    </div>
+    <div style="margin-bottom:24px">
+      <label style="display:block;font-size:13px;font-weight:500;margin-bottom:6px">Admin API Key</label>
+      <input id="login-key" type="password" placeholder="Enter your admin API key"
+        style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:6px;font-size:14px;outline:none" />
+    </div>
+    <p id="login-error" style="color:#E03131;font-size:13px;margin:0 0 14px;display:none"></p>
+    <button class="btn-primary" onclick="doLogin()" style="width:100%;padding:12px">Sign In</button>
+    <p style="text-align:center;font-size:12px;color:var(--muted);margin:16px 0 0">
+      Set <code>ADMIN_API_KEY</code> in your .env file
+    </p>
+  </div>
+</div>
+
+<!-- ─── APP SHELL ─────────────────────────────────────────── -->
+<div id="app-shell">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:36px;height:36px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <span style="color:#fff;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700">AH</span>
+        </div>
+        <div>
+          <div id="sidebar-tenant-name" style="font-weight:600;font-size:14px;line-height:1.2"></div>
+          <div style="font-size:11px;color:var(--muted)">Admin</div>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="sidebar-link active" onclick="showTab('dashboard')" id="nav-dashboard">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </div>
+      <div class="sidebar-link" onclick="showTab('leads')" id="nav-leads">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Leads
+      </div>
+      <div class="sidebar-link" onclick="showTab('emails')" id="nav-emails">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Emails
+      </div>
+    </div>
+    <div style="padding:16px 12px;border-top:1px solid var(--border)">
+      <button class="btn-ghost" onclick="doLogout()" style="width:100%;font-size:13px">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="main-content">
+    <div class="top-bar">
+      <div id="top-bar-title" style="font-size:15px;font-weight:600"></div>
+      <div id="top-bar-tenant" style="font-size:12px;color:var(--muted);background:var(--sand);padding:4px 12px;border-radius:20px;border:1px solid var(--border)"></div>
+    </div>
+    <div class="content-area">
+
+      <!-- ── DASHBOARD TAB ── -->
+      <div id="tab-dashboard" class="active">
+        <h2 class="section-title">Overview</h2>
+        <p class="section-sub">Live snapshot of your lead pipeline.</p>
+        <div id="kpi-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:28px">
+          <div class="kpi-card"><div class="spinner"></div></div>
+        </div>
+        <div class="card" style="padding:20px">
+          <h3 style="margin:0 0 14px;font-size:17px">Leads by Status</h3>
+          <div id="status-breakdown"></div>
+        </div>
+      </div>
+
+      <!-- ── LEADS TAB ── -->
+      <div id="tab-leads">
+        <h2 class="section-title">Leads</h2>
+        <p class="section-sub">All captured leads for this tenant.</p>
+        <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap">
+          <select id="leads-status-filter" onchange="loadLeads(1)"
+            style="padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:#fff;min-width:140px">
+            <option value="">All Statuses</option>
+            <option value="received">Received</option>
+            <option value="processing">Processing</option>
+            <option value="email_sent">Email Sent</option>
+            <option value="email_failed">Email Failed</option>
+            <option value="completed">Completed</option>
+          </select>
+          <div style="position:relative;flex:1;min-width:200px">
+            <svg width="14" height="14" fill="none" stroke="var(--muted)" stroke-width="2" viewBox="0 0 24 24" style="position:absolute;left:10px;top:50%;transform:translateY(-50%)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input id="leads-search" type="text" placeholder="Search by email…" oninput="debounceSearch()"
+              style="width:100%;padding:8px 12px 8px 32px;border:1px solid var(--border);border-radius:6px;font-size:13px;outline:none" />
+          </div>
+          <button class="btn-ghost" onclick="loadLeads(1)" style="padding:8px 16px">Refresh</button>
+        </div>
+        <div class="card" style="overflow:hidden">
+          <table>
+            <thead><tr>
+              <th>Name</th><th>Email</th><th>Destination</th><th>Status</th><th>Score</th><th>Created</th>
+            </tr></thead>
+            <tbody id="leads-tbody"><tr><td colspan="6" class="empty-state"><div class="spinner"></div></td></tr></tbody>
+          </table>
+        </div>
+        <div id="leads-pagination" style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;font-size:13px;color:var(--muted)">
+          <span id="leads-page-info"></span>
+          <div style="display:flex;gap:8px">
+            <button class="pagination-btn" id="leads-prev" onclick="leadsPage('prev')">← Prev</button>
+            <button class="pagination-btn" id="leads-next" onclick="leadsPage('next')">Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── EMAILS TAB ── -->
+      <div id="tab-emails">
+        <h2 class="section-title">Email History</h2>
+        <p class="section-sub">All outbound emails sent by the pipeline.</p>
+        <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap">
+          <select id="emails-status-filter" onchange="loadEmails(1)"
+            style="padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:#fff;min-width:140px">
+            <option value="">All Statuses</option>
+            <option value="sent">Sent</option>
+            <option value="failed">Failed</option>
+            <option value="bounced">Bounced</option>
+            <option value="complaint">Complaint</option>
+          </select>
+          <button class="btn-ghost" onclick="loadEmails(1)" style="padding:8px 16px">Refresh</button>
+        </div>
+        <div class="card" style="overflow:hidden">
+          <table>
+            <thead><tr>
+              <th>To</th><th>Subject</th><th>Step</th><th>Status</th><th>Sent At</th><th>Preview</th>
+            </tr></thead>
+            <tbody id="emails-tbody"><tr><td colspan="6" class="empty-state"><div class="spinner"></div></td></tr></tbody>
+          </table>
+        </div>
+        <div id="emails-pagination" style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;font-size:13px;color:var(--muted)">
+          <span id="emails-page-info"></span>
+          <div style="display:flex;gap:8px">
+            <button class="pagination-btn" id="emails-prev" onclick="emailsPage('prev')">← Prev</button>
+            <button class="pagination-btn" id="emails-next" onclick="emailsPage('next')">Next →</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content-area -->
+  </div><!-- /main-content -->
+</div><!-- /app-shell -->
+
+<!-- ─── DETAIL PANEL ──────────────────────────────────────── -->
+<div class="panel-overlay" id="panel-overlay" onclick="closePanel()"></div>
+<div class="detail-panel" id="detail-panel">
+  <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+    <h3 style="margin:0;font-size:20px">Lead Detail</h3>
+    <button onclick="closePanel()" class="btn-ghost" style="padding:6px 14px">✕ Close</button>
+  </div>
+  <div id="detail-panel-body" style="padding:24px"></div>
+</div>
+
+<!-- ─── EMAIL PREVIEW MODAL ───────────────────────────────── -->
+<div id="email-modal-overlay" style="position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:60;display:none;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:12px;max-width:680px;width:95%;max-height:85vh;display:flex;flex-direction:column;overflow:hidden">
+    <div style="padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <h3 id="email-modal-subject" style="margin:0;font-size:18px"></h3>
+      <button onclick="closeEmailModal()" class="btn-ghost">✕</button>
+    </div>
+    <div id="email-modal-body" style="padding:24px;overflow-y:auto;flex:1;font-size:14px;line-height:1.7"></div>
+  </div>
+</div>
+
+<script>
+// ── Config ───────────────────────────────────────────────
+// Change this if the API is running on a different host/port
+const API_BASE = 'http://localhost:8000';
+
+// ── State ────────────────────────────────────────────────
+let state = {
+  tenant: '',
+  apiKey: '',
+  leadsPage: 1,
+  leadsTotal: 0,
+  leadsPageSize: 25,
+  emailsPage: 1,
+  emailsTotal: 0,
+  emailsPageSize: 25,
+};
+let searchTimer = null;
+
+// ── Auth ─────────────────────────────────────────────────
+async function doLogin() {
+  const tenant = document.getElementById('login-tenant').value.trim();
+  const key    = document.getElementById('login-key').value.trim();
+  const errEl  = document.getElementById('login-error');
+  errEl.style.display = 'none';
+
+  if (!tenant || !key) { errEl.textContent = 'Please enter both tenant and API key.'; errEl.style.display = 'block'; return; }
+
+  try {
+    const r = await apiFetch(`${API_BASE}/api/v1/admin/${tenant}/dashboard`, tenant, key);
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({}));
+      errEl.textContent = err.detail || `Error ${r.status}`;
+      errEl.style.display = 'block';
+      return;
+    }
+    state.tenant = tenant;
+    state.apiKey = key;
+    localStorage.setItem('admin_tenant', tenant);
+    localStorage.setItem('admin_key', key);
+    showApp();
+  } catch (e) {
+    errEl.textContent = 'Could not reach the API. Is the server running?';
+    errEl.style.display = 'block';
+  }
+}
+
+document.getElementById('login-key').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+function doLogout() {
+  localStorage.removeItem('admin_tenant');
+  localStorage.removeItem('admin_key');
+  state.tenant = '';
+  state.apiKey = '';
+  document.getElementById('app-shell').classList.remove('visible');
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+// ── App Shell ─────────────────────────────────────────────
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app-shell').classList.add('visible');
+  document.getElementById('sidebar-tenant-name').textContent = state.tenant;
+  document.getElementById('top-bar-tenant').textContent = `tenant: ${state.tenant}`;
+  showTab('dashboard');
+}
+
+// ── Tabs ──────────────────────────────────────────────────
+function showTab(name) {
+  ['dashboard','leads','emails'].forEach(t => {
+    document.getElementById(`tab-${t}`).classList.toggle('active', t === name);
+    document.getElementById(`nav-${t}`).classList.toggle('active', t === name);
+  });
+  const titles = { dashboard: 'Dashboard', leads: 'Leads', emails: 'Email History' };
+  document.getElementById('top-bar-title').textContent = titles[name];
+
+  if (name === 'dashboard') loadDashboard();
+  if (name === 'leads')     loadLeads(1);
+  if (name === 'emails')    loadEmails(1);
+}
+
+// ── API helper ────────────────────────────────────────────
+function apiFetch(path, tenant, key) {
+  return fetch(path, { headers: { 'X-Admin-Key': key || state.apiKey } });
+}
+async function apiGet(path) {
+  const r = await apiFetch(API_BASE + path);
+  if (!r.ok) throw new Error(`API ${r.status}`);
+  return r.json();
+}
+
+// ── Dashboard ─────────────────────────────────────────────
+async function loadDashboard() {
+  const grid = document.getElementById('kpi-grid');
+  const breakdown = document.getElementById('status-breakdown');
+  grid.innerHTML = '<div style="grid-column:1/-1;padding:20px"><div class="spinner"></div></div>';
+  breakdown.innerHTML = '';
+  try {
+    const d = await apiGet(`/api/v1/admin/${state.tenant}/dashboard`);
+    const kpis = [
+      { label: 'Total Leads', value: d.total_leads },
+      { label: 'Emails Sent', value: d.emails_sent },
+      { label: 'Avg Lead Score', value: d.avg_lead_score != null ? d.avg_lead_score.toFixed(1) : '—' },
+      { label: 'Converted', value: d.leads_by_status['completed'] ?? 0 },
+    ];
+    grid.innerHTML = kpis.map(k => `
+      <div class="kpi-card">
+        <div class="kpi-value">${k.value}</div>
+        <div class="kpi-label">${k.label}</div>
+      </div>`).join('');
+
+    const statusMeta = {
+      received:    { label: 'Received',    color: '#4263EB' },
+      processing:  { label: 'Processing',  color: '#E67700' },
+      email_sent:  { label: 'Email Sent',  color: '#2F9E44' },
+      email_failed:{ label: 'Failed',      color: '#E03131' },
+      completed:   { label: 'Completed',   color: '#0C8599' },
+    };
+    const total = d.total_leads || 1;
+    const bars = Object.entries(d.leads_by_status).map(([status, cnt]) => {
+      const m = statusMeta[status] || { label: status, color: '#888' };
+      const pct = Math.round((cnt / total) * 100);
+      return `<div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+          <span style="font-weight:500">${m.label}</span>
+          <span style="color:var(--muted)">${cnt} (${pct}%)</span>
+        </div>
+        <div style="height:8px;border-radius:4px;background:#F0ECE4;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${m.color};border-radius:4px;transition:width .5s"></div>
+        </div>
+      </div>`;
+    }).join('') || '<p style="color:var(--muted);font-size:13px">No leads yet.</p>';
+    breakdown.innerHTML = bars;
+  } catch (e) {
+    grid.innerHTML = `<div style="grid-column:1/-1;color:#E03131;font-size:13px">Failed to load dashboard: ${e.message}</div>`;
+  }
+}
+
+// ── Leads ─────────────────────────────────────────────────
+async function loadLeads(page) {
+  state.leadsPage = page;
+  const tbody = document.getElementById('leads-tbody');
+  tbody.innerHTML = '<tr><td colspan="6" style="padding:32px;text-align:center"><div class="spinner" style="margin:auto"></div></td></tr>';
+
+  const status = document.getElementById('leads-status-filter').value;
+  const q      = document.getElementById('leads-search').value.trim();
+  let url = `/api/v1/admin/${state.tenant}/leads?page=${page}&page_size=${state.leadsPageSize}`;
+  if (status) url += `&status=${encodeURIComponent(status)}`;
+  if (q)      url += `&q=${encodeURIComponent(q)}`;
+
+  try {
+    const data = await apiGet(url);
+    state.leadsTotal = data.total;
+
+    if (!data.items.length) {
+      tbody.innerHTML = `<tr><td colspan="6">
+        <div class="empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          No leads found.
+        </div></td></tr>`;
+    } else {
+      tbody.innerHTML = data.items.map(l => `
+        <tr onclick="openLeadDetail('${l.id}')">
+          <td style="font-weight:500">${esc(l.full_name)}</td>
+          <td style="color:var(--muted)">${esc(l.email_address)}</td>
+          <td>${esc(l.destination)}</td>
+          <td><span class="badge badge-${l.status}">${l.status.replace('_',' ')}</span></td>
+          <td>${l.lead_score != null ? `<span style="font-weight:600;color:var(--green)">${l.lead_score}</span>` : '<span style="color:var(--muted)">—</span>'}</td>
+          <td style="color:var(--muted)">${fmtDate(l.created_at)}</td>
+        </tr>`).join('');
+    }
+
+    const start = (page - 1) * state.leadsPageSize + 1;
+    const end   = Math.min(page * state.leadsPageSize, data.total);
+    document.getElementById('leads-page-info').textContent = data.total ? `${start}–${end} of ${data.total}` : '0 results';
+    document.getElementById('leads-prev').disabled = page <= 1;
+    document.getElementById('leads-next').disabled = end >= data.total;
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="6" style="color:#E03131;padding:24px;text-align:center">Error: ${e.message}</td></tr>`;
+  }
+}
+
+function leadsPage(dir) {
+  const next = dir === 'prev' ? state.leadsPage - 1 : state.leadsPage + 1;
+  if (next < 1) return;
+  loadLeads(next);
+}
+
+function debounceSearch() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => loadLeads(1), 350);
+}
+
+// ── Lead Detail Panel ─────────────────────────────────────
+async function openLeadDetail(leadId) {
+  document.getElementById('panel-overlay').classList.add('open');
+  document.getElementById('detail-panel').classList.add('open');
+  document.getElementById('detail-panel-body').innerHTML = '<div style="text-align:center;padding:40px"><div class="spinner" style="margin:auto"></div></div>';
+
+  try {
+    const lead = await apiGet(`/api/v1/admin/${state.tenant}/leads/${leadId}`);
+    renderLeadDetail(lead);
+  } catch (e) {
+    document.getElementById('detail-panel-body').innerHTML = `<p style="color:#E03131">Error: ${e.message}</p>`;
+  }
+}
+
+function renderLeadDetail(lead) {
+  const statusColors = { received:'#4263EB',processing:'#E67700',email_sent:'#2F9E44',email_failed:'#E03131',completed:'#0C8599' };
+  const color = statusColors[lead.status] || '#888';
+
+  const formRows = Object.entries(lead.form_data)
+    .filter(([k]) => k !== 'email')
+    .map(([k, v]) => `<tr>
+      <td style="font-size:12px;color:var(--muted);font-weight:500;padding:6px 0;width:160px;text-transform:capitalize">${k.replace(/_/g,' ')}</td>
+      <td style="font-size:13px;padding:6px 0">${esc(String(v || '—'))}</td>
+    </tr>`).join('');
+
+  const emailRows = lead.email_logs.length
+    ? lead.email_logs.map(e => `
+      <div style="border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+          <span style="font-weight:500;font-size:13px">Step ${e.step_number} — ${esc(e.subject)}</span>
+          <span class="badge badge-${e.status}">${e.status}</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:8px">${fmtDate(e.sent_at)}</div>
+        ${e.body_preview ? `<button class="btn-ghost" style="font-size:12px;padding:5px 12px" onclick="showEmailPreview('${esc(e.subject)}', \`${esc(e.body_preview)}\`)">Preview ▸</button>` : ''}
+      </div>`).join('')
+    : '<p style="color:var(--muted);font-size:13px">No emails sent yet.</p>';
+
+  const auditRows = lead.audit_trail.map(a => `
+    <div style="display:flex;gap:12px;padding:8px 0;border-bottom:1px solid #F0ECE4">
+      <div style="width:3px;border-radius:2px;background:${statusColors[a.new_status] || '#ccc'};flex-shrink:0"></div>
+      <div>
+        <div style="font-size:12px;font-weight:600">${esc(a.event)}</div>
+        <div style="font-size:12px;color:var(--muted)">${a.old_status || '—'} → ${a.new_status} &nbsp;·&nbsp; ${fmtDate(a.created_at)}</div>
+      </div>
+    </div>`).join('') || '<p style="color:var(--muted);font-size:13px">No audit events.</p>';
+
+  document.getElementById('detail-panel-body').innerHTML = `
+    <div style="margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+        <h3 style="margin:0;font-size:20px">${esc(lead.form_data.full_name || lead.email_address)}</h3>
+        <span class="badge badge-${lead.status}">${lead.status.replace('_',' ')}</span>
+      </div>
+      <div style="font-size:13px;color:var(--muted)">${esc(lead.email_address)} · Score: <strong style="color:var(--green)">${lead.lead_score ?? '—'}</strong></div>
+      ${lead.crm_contact_id ? `<div style="font-size:12px;color:var(--muted);margin-top:4px">HubSpot ID: ${lead.crm_contact_id}</div>` : ''}
+    </div>
+    <div style="margin-bottom:24px">
+      <h4 style="font-size:14px;margin:0 0 10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Form Data</h4>
+      <table style="width:100%">${formRows}</table>
+    </div>
+    <div style="margin-bottom:24px">
+      <h4 style="font-size:14px;margin:0 0 12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Emails (${lead.email_logs.length})</h4>
+      ${emailRows}
+    </div>
+    <div>
+      <h4 style="font-size:14px;margin:0 0 10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Audit Trail</h4>
+      ${auditRows}
+    </div>`;
+}
+
+function closePanel() {
+  document.getElementById('panel-overlay').classList.remove('open');
+  document.getElementById('detail-panel').classList.remove('open');
+}
+
+// ── Email Preview Modal ───────────────────────────────────
+function showEmailPreview(subject, preview) {
+  document.getElementById('email-modal-subject').textContent = subject;
+  document.getElementById('email-modal-body').innerHTML = preview;
+  document.getElementById('email-modal-overlay').style.display = 'flex';
+}
+function closeEmailModal() {
+  document.getElementById('email-modal-overlay').style.display = 'none';
+}
+
+// ── Emails ────────────────────────────────────────────────
+async function loadEmails(page) {
+  state.emailsPage = page;
+  const tbody = document.getElementById('emails-tbody');
+  tbody.innerHTML = '<tr><td colspan="6" style="padding:32px;text-align:center"><div class="spinner" style="margin:auto"></div></td></tr>';
+
+  const status = document.getElementById('emails-status-filter').value;
+  let url = `/api/v1/admin/${state.tenant}/email-logs?page=${page}&page_size=${state.emailsPageSize}`;
+  if (status) url += `&status=${encodeURIComponent(status)}`;
+
+  try {
+    const data = await apiGet(url);
+    state.emailsTotal = data.total;
+
+    if (!data.items.length) {
+      tbody.innerHTML = `<tr><td colspan="6">
+        <div class="empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          No emails found.
+        </div></td></tr>`;
+    } else {
+      tbody.innerHTML = data.items.map(e => `
+        <tr onclick="showEmailPreview('${esc(e.subject)}', \`${esc(e.body_preview || '<em style=\\"color:var(--muted)\\">No preview available</em>')}\`)">
+          <td style="color:var(--muted);font-size:13px">${esc(e.to_address)}</td>
+          <td style="font-weight:500;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.subject)}</td>
+          <td style="text-align:center"><span style="background:var(--sand);border:1px solid var(--border);border-radius:12px;padding:2px 10px;font-size:12px">${e.step_number}</span></td>
+          <td><span class="badge badge-${e.status}">${e.status}</span></td>
+          <td style="color:var(--muted);font-size:13px">${fmtDate(e.sent_at)}</td>
+          <td><button class="btn-ghost" style="font-size:12px;padding:4px 10px">View ▸</button></td>
+        </tr>`).join('');
+    }
+
+    const start = (page - 1) * state.emailsPageSize + 1;
+    const end   = Math.min(page * state.emailsPageSize, data.total);
+    document.getElementById('emails-page-info').textContent = data.total ? `${start}–${end} of ${data.total}` : '0 results';
+    document.getElementById('emails-prev').disabled = page <= 1;
+    document.getElementById('emails-next').disabled = end >= data.total;
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="6" style="color:#E03131;padding:24px;text-align:center">Error: ${e.message}</td></tr>`;
+  }
+}
+
+function emailsPage(dir) {
+  const next = dir === 'prev' ? state.emailsPage - 1 : state.emailsPage + 1;
+  if (next < 1) return;
+  loadEmails(next);
+}
+
+// ── Utilities ─────────────────────────────────────────────
+function esc(str) {
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;')
+    .replace(/`/g,'&#96;');
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' })
+    + ' ' + d.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+}
+
+// ── Auto-login from localStorage ──────────────────────────
+(function init() {
+  const t = localStorage.getItem('admin_tenant');
+  const k = localStorage.getItem('admin_key');
+  if (t && k) {
+    document.getElementById('login-tenant').value = t;
+    document.getElementById('login-key').value = k;
+    state.tenant = t;
+    state.apiKey = k;
+    showApp();
+  }
+})();
+</script>
+</body>
+</html>

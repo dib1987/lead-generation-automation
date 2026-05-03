@@ -269,4 +269,21 @@ def process_lead(self, lead_id: str) -> None:
         _run(lead_id)
     except Exception as exc:
         logger.error("process_lead: failed for lead %s — retrying: %s", lead_id, exc)
+        if self.request.retries >= self.max_retries:
+            _send_failure_alert(lead_id, exc)
         raise self.retry(exc=exc)
+
+
+def _send_failure_alert(lead_id: str, exc: Exception) -> None:
+    try:
+        email_service.send_admin_alert(
+            subject=f"[ALERT] Lead processing failed: {lead_id}",
+            html_body=(
+                f"<p><strong>Lead ID:</strong> {lead_id}</p>"
+                f"<p><strong>Error:</strong> {exc}</p>"
+                f"<p>All 3 retries exhausted. Manual intervention required.</p>"
+                f"<p><em>Sent by Lead Generation System</em></p>"
+            ),
+        )
+    except Exception as alert_exc:
+        logger.error("process_lead: could not send failure alert: %s", alert_exc)

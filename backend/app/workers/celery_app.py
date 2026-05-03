@@ -1,7 +1,10 @@
 from celery import Celery
 from celery.schedules import crontab
 from app.core.settings import settings
+from app.core.logging_config import configure_logging
 import app.db.base  # noqa: F401 — pre-loads all SQLAlchemy models before Celery imports task modules, breaking the circular import chain
+
+configure_logging(settings.environment)
 
 celery_app = Celery(
     "leadgen",

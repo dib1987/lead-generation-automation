@@ -53,8 +53,11 @@ docker-compose exec postgres psql -U leadgen -d leadgen
 # Inspect registered Celery tasks
 docker-compose exec celery_worker celery -A app.workers.celery_app inspect registered
 
-# Manually trigger a task (once process_lead.py exists)
+# Manually trigger a task
 docker-compose exec celery_worker celery -A app.workers.celery_app call workers.tasks.process_lead.process_lead --args='["<lead_id>"]'
+
+# Seed tenant rows from config/tenants/*.json (idempotent)
+docker-compose exec api python seed.py
 ```
 
 ---
@@ -77,22 +80,39 @@ docker-compose exec celery_worker celery -A app.workers.celery_app call workers.
 ### Request flow
 ```
 POST /api/v1/leads/{tenant_slug}
+  → check_rate_limit (3 req/IP/hr via Redis)
   → validate with LeadCreateRequest schema
+  → dedup check (24h window → active enrollment check up to 30d)
   → write Lead row (status: received)
   → enqueue process_lead Celery task
   → return 202
 
 process_lead task:
   → load tenant config JSON
+  → score lead (0–100 via _score_lead)
   → call Claude API → write llm_cost_logs
   → send SES email → write email_logs
   → update lead status → write audit_logs
   → create CampaignEnrollment (status: active, next_send_at: now + delay_days[1])
+  → upsert HubSpot contact (non-blocking)
+  [on 3rd retry failure] → send admin alert email
 
 celery_beat (every 15 min):
   → run_followup task
   → SELECT enrollments WHERE next_send_at <= now() AND status = active
   → for each: generate next email, send, advance current_step, set next next_send_at
+
+POST /api/v1/webhooks/ses?token=<WEBHOOK_SECRET>
+  → parse SNS envelope
+  → SubscriptionConfirmation → auto-confirm via SubscribeURL
+  → Bounce (Permanent only) → pause CampaignEnrollment + audit log
+  → Complaint → pause CampaignEnrollment + audit log
+
+GET /api/v1/admin/{tenant_slug}/dashboard      → KPIs + status breakdown
+GET /api/v1/admin/{tenant_slug}/leads          → paginated list (filter by status/email)
+GET /api/v1/admin/{tenant_slug}/leads/{id}     → lead detail + email logs + audit trail
+GET /api/v1/admin/{tenant_slug}/email-logs     → paginated email log (filter by status/lead_id)
+All admin routes require X-Admin-Key header matching ADMIN_API_KEY
 ```
 
 ### Non-obvious design decisions
@@ -161,6 +181,9 @@ active → completed   (all steps sent)
 | `ENVIRONMENT` | development | No |
 | `SECRET_KEY` | change-me | No |
 | `CORS_ORIGINS` | http://localhost:3000 | No (comma-separated) |
+| `ADMIN_ALERT_EMAIL` | "" | Phase 1C — failure alert emails |
+| `WEBHOOK_SECRET` | "" | Phase 1C — guards /webhooks/ses endpoint |
+| `ADMIN_API_KEY` | "" | Phase 2 — guards /api/v1/admin/* endpoints; leave empty to disable auth |
 
 ---
 
@@ -170,16 +193,47 @@ active → completed   (all steps sent)
 |---|---|---|
 | 1A | DB models, Docker, health endpoint, migrations | **Complete** |
 | 1B | Services, Celery tasks, API route, tenant/campaign configs, frontend form, live email pipeline | **Complete** |
-| 1C | Production hardening — failure alerting, SES bounce webhook, rate limiting, seed script | **In progress** |
-| 2 | Multi-tenant admin dashboard — leads view, email history, cost tracking | **Not started** |
+| 1C | Production hardening — failure alerting, SES bounce webhook, rate limiting, seed script, structured logging | **Complete** |
+| 2 | Multi-tenant admin dashboard — leads view, email history, cost tracking | **Complete** |
 | 3 | Webhook handling — SES bounce/complaint, reply detection | **Not started** |
 
 ### Key non-obvious decisions made in Phase 1B
 - **Sync DB session for Celery** (`db/sync_session.py`): asyncpg is incompatible with Celery prefork workers. A separate psycopg2-backed sync session factory is used in all Celery tasks.
 - **Explicit commit before `.delay()`** in `leads.py`: `await session.commit()` is called before `process_lead.delay()` to prevent a race condition where the Celery task starts before the Lead row is committed. This is the only place a route handler commits explicitly — `get_db()` still handles commit/rollback for everything else.
 - **Campaign row auto-bootstrap**: `process_lead` creates the Campaign DB row from JSON config on first run — no seed script needed for campaigns.
-- **Tenant row requires manual seed**: The `tenants` table row for `africa_travel` must be inserted via psql after a fresh container start. No seed script exists yet (Phase 1C task).
+- **Tenant row requires manual seed**: Run `docker-compose exec api python seed.py` after a fresh container start. The seed script reads all `config/tenants/*.json` files and is idempotent.
 - **Code fence stripping in `llm_service.py`**: Claude sometimes wraps HTML output in markdown code fences. `_strip_code_fences()` removes them before the body is sent to SES.
+
+### Key non-obvious decisions made in Phase 1C
+- **Structured logging** (`core/logging_config.py`): `configure_logging()` called at startup in both `main.py` and `celery_app.py`. Plain text in development, JSON-per-line in production (CloudWatch/Datadog compatible).
+- **Rate limiting** (`core/rate_limit.py`): Redis-backed sliding window via INCR + EXPIRE. Default: 3 submissions per IP per hour on the `/leads` route. Fails open if Redis is unreachable — rate limiting is a protection layer, not a critical gate.
+- **SES bounce/complaint webhook** (`api/v1/webhooks.py`): `POST /api/v1/webhooks/ses` receives SNS notifications. Handles `SubscriptionConfirmation` (auto-confirms), permanent `Bounce`, and `Complaint` — sets affected `CampaignEnrollment` rows to `paused` and writes audit logs. Only permanent bounces trigger a pause; transient (mailbox full) are ignored.
+- **Failure alerting** (`email_service.send_admin_alert`): called by `process_lead` after all 3 Celery retries are exhausted. Sends a plain SES email to `ADMIN_ALERT_EMAIL`. Silently skips if not configured.
+- **Seed script** (`backend/seed.py`): reads all `config/tenants/*.json` files and inserts missing tenant rows. Idempotent — skips slugs that already exist.
+
+### Key non-obvious decisions made in Phase 2
+- **Admin API** (`api/v1/admin.py`): four endpoints — `GET /{tenant}/dashboard`, `GET /{tenant}/leads`, `GET /{tenant}/leads/{id}`, `GET /{tenant}/email-logs`. All guarded by `X-Admin-Key` header (verified against `ADMIN_API_KEY` env var; auth skipped if env var is empty).
+- **Admin dashboard** (`admin/index.html`): vanilla JS SPA served from the `admin/` directory. Login stores tenant + API key in `localStorage` for session persistence. Tabs: Dashboard (KPI cards + status breakdown bars), Leads (filterable + searchable table with slide-in detail panel), Emails (filterable log with body preview modal).
+- **Admin schemas** (`schemas/admin.py`): Pydantic v2 models with `from_attributes=True` for ORM → response serialization. `LeadSummary` flattens `form_data.full_name` and `form_data.destination` for the table view.
+- **`ADMIN_API_KEY` env var** added to `settings.py`. Leave empty in dev to disable auth.
+
+---
+
+## Admin dashboard
+
+The dashboard lives at `admin/index.html` — a self-contained vanilla JS SPA. No build step.
+
+```bash
+# Open locally (any static file server works)
+# Option 1 — Python
+python -m http.server 5500 --directory admin
+
+# Option 2 — VS Code Live Server → point to admin/index.html
+
+# Default API target is http://localhost:8000 — change API_BASE in the <script> for other envs
+```
+
+Login flow: enter tenant slug + `ADMIN_API_KEY` value → credentials stored in `localStorage` for session persistence.
 
 ---
 

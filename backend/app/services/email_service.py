@@ -87,6 +87,38 @@ def send_email(
     return ses_message_id
 
 
+def send_admin_alert(subject: str, html_body: str) -> None:
+    """
+    Send a plain system alert email to the configured admin address.
+    No DB session, no EmailLog row — this is infrastructure-level alerting.
+    Silently skips if ADMIN_ALERT_EMAIL is not configured.
+    """
+    if not settings.admin_alert_email or not settings.ses_verified_sender:
+        return
+
+    ses = boto3.client(
+        "ses",
+        region_name=settings.aws_region,
+        aws_access_key_id=settings.aws_access_key_id,
+        aws_secret_access_key=settings.aws_secret_access_key,
+    )
+
+    full_html = _HTML_ENVELOPE.format(body=html_body)
+
+    try:
+        ses.send_email(
+            Source=settings.ses_verified_sender,
+            Destination={"ToAddresses": [settings.admin_alert_email]},
+            Message={
+                "Subject": {"Data": subject, "Charset": "UTF-8"},
+                "Body": {"Html": {"Data": full_html, "Charset": "UTF-8"}},
+            },
+        )
+        logger.info("Admin alert sent: subject=%r to=%s", subject, settings.admin_alert_email)
+    except Exception as exc:
+        logger.error("Failed to send admin alert: %s", exc)
+
+
 def _write_email_log(
     session: Session,
     tenant_id: uuid.UUID,
