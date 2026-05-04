@@ -27,3 +27,4 @@ class CampaignEnrollment(Base):
     next_send_at: Mapped[datetime | None] = mapped_column(nullable=True, index=True)
     enrolled_at: Mapped[datetime] = mapped_column(server_default=text("now()"))
     completed_at: Mapped[datetime | None] = mapped_column(nullable=True)
+    replied_at: Mapped[datetime | None] = mapped_column(nullable=True)

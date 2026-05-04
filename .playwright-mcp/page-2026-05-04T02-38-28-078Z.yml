@@ -1,0 +1,57 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e23]:
+    - generic [ref=e24]:
+      - generic [ref=e26]:
+        - generic [ref=e28]: AH
+        - generic [ref=e29]:
+          - generic [ref=e30]: africa_travel
+          - generic [ref=e31]: Admin
+      - generic [ref=e32]:
+        - generic [ref=e33] [cursor=pointer]:
+          - img [ref=e34]
+          - text: Dashboard
+        - generic [ref=e39] [cursor=pointer]:
+          - img [ref=e40]
+          - text: Leads
+        - generic [ref=e45] [cursor=pointer]:
+          - img [ref=e46]
+          - text: Emails
+      - button "Sign Out" [ref=e50] [cursor=pointer]
+    - generic [ref=e51]:
+      - generic [ref=e52]:
+        - generic [ref=e53]: Dashboard
+        - generic [ref=e54]: "tenant: africa_travel"
+      - generic [ref=e56]:
+        - heading "Overview" [level=2] [ref=e57]
+        - paragraph [ref=e58]: Live snapshot of your lead pipeline.
+        - generic [ref=e59]:
+          - generic [ref=e60]:
+            - generic [ref=e61]: "10"
+            - generic [ref=e62]: Total Leads
+          - generic [ref=e63]:
+            - generic [ref=e64]: "17"
+            - generic [ref=e65]: Emails Sent
+          - generic [ref=e66]:
+            - generic [ref=e67]: "53.6"
+            - generic [ref=e68]: Avg Lead Score
+          - generic [ref=e69]:
+            - generic [ref=e70]: "1"
+            - generic [ref=e71]: Converted
+        - generic [ref=e72]:
+          - heading "Leads by Status" [level=3] [ref=e73]
+          - generic [ref=e74]:
+            - generic [ref=e76]:
+              - generic [ref=e77]: Failed
+              - generic [ref=e78]: 4 (40%)
+            - generic [ref=e82]:
+              - generic [ref=e83]: Received
+              - generic [ref=e84]: 3 (30%)
+            - generic [ref=e88]:
+              - generic [ref=e89]: Email Sent
+              - generic [ref=e90]: 2 (20%)
+            - generic [ref=e94]:
+              - generic [ref=e95]: Completed
+              - generic [ref=e96]: 1 (10%)
+  - generic [ref=e19]:
+    - heading "Lead Detail" [level=3] [ref=e20]
+    - button "✕ Close" [ref=e21] [cursor=pointer]

@@ -1,19 +1,30 @@
 """
 POST /api/v1/webhooks/ses
 
-Receives SES bounce and complaint notifications from AWS SNS.
+Receives SES delivery and inbound email notifications from AWS SNS.
 
 Flow:
   SNS → POST /api/v1/webhooks/ses?token=<WEBHOOK_SECRET>
     → parse SNS envelope
     → if SubscriptionConfirmation: confirm via SubscribeURL
-    → if Notification: handle bounce or complaint
-      → find affected enrollments → set status=paused → audit log
+    → if Notification:
+        Bounce (Permanent)  → pause CampaignEnrollment + audit log
+        Complaint           → pause CampaignEnrollment + audit log
+        Received            → match In-Reply-To → set enrollment replied + audit log + admin alert
 
 Security: WEBHOOK_SECRET query token. Leave it empty in dev (auth skipped).
+
+Reply detection:
+  SES inbound receipt rules must be configured to publish to an SNS topic that
+  delivers to this endpoint. When a lead replies to any outbound email, SES sets
+  the notificationType to "Received". The handler extracts the In-Reply-To
+  Message-ID, looks it up in email_logs.ses_message_id, finds the active
+  CampaignEnrollment for that lead, and marks it replied.
 """
+import asyncio
 import json
 import logging
+from datetime import datetime, timezone
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
@@ -25,6 +36,7 @@ from app.db.session import get_db
 from app.models.audit_log import AuditLog
 from app.models.campaign_enrollment import CampaignEnrollment
 from app.models.email_log import EmailLog
+from app.services.email_service import send_admin_alert
 
 logger = logging.getLogger(__name__)
 
@@ -90,6 +102,10 @@ async def ses_webhook(
                 await _pause_enrollments(session, recipients, event="complaint")
             return {"status": "handled", "type": "complaint", "recipients": recipients}
 
+        if notification_type == "Received":
+            result = await _handle_reply(session, message)
+            return {"status": "handled", "type": "received", **result}
+
         logger.debug("ses_webhook: unhandled notification type %r — ignoring", notification_type)
         return {"status": "ignored"}
 
@@ -111,6 +127,96 @@ async def _confirm_subscription(envelope: dict) -> None:
             logger.info("ses_webhook: SNS subscription confirmed (status=%d)", resp.status_code)
     except Exception as exc:
         logger.error("ses_webhook: could not confirm SNS subscription: %s", exc)
+
+
+async def _handle_reply(session: AsyncSession, message: dict) -> dict:
+    """
+    Handle a notificationType=Received SNS message from SES inbound receipt rules.
+
+    Extracts the In-Reply-To Message-ID from the inbound email headers, looks up
+    the matching EmailLog row, marks the lead's active CampaignEnrollment as
+    'replied', and fires an admin alert (a reply = hot lead).
+
+    Returns a dict summarising the outcome for the endpoint response.
+    """
+    mail = message.get("mail", {})
+    common = mail.get("commonHeaders", {})
+
+    # inReplyTo may be absent (brand-new thread, not a reply)
+    in_reply_to_raw = common.get("inReplyTo", "").strip()
+    if not in_reply_to_raw:
+        logger.debug("ses_webhook: Received notification has no In-Reply-To — ignoring")
+        return {"matched": False, "reason": "no_in_reply_to"}
+
+    # SES Message-IDs arrive wrapped in angle brackets in the In-Reply-To header
+    ses_message_id = in_reply_to_raw.strip("<>")
+
+    sender = mail.get("source", "").lower()
+    subject = common.get("subject", "")
+
+    # Look up the outbound email that triggered this reply
+    email_log = (await session.execute(
+        select(EmailLog).where(EmailLog.ses_message_id == ses_message_id)
+    )).scalars().first()
+
+    if not email_log:
+        logger.info(
+            "ses_webhook: reply received but no matching email_log for message_id=%r sender=%s",
+            ses_message_id, sender,
+        )
+        return {"matched": False, "reason": "unknown_message_id", "ses_message_id": ses_message_id}
+
+    lead_id = email_log.lead_id
+
+    # Find the active enrollment — mark it replied
+    enrollments = (await session.execute(
+        select(CampaignEnrollment)
+        .where(CampaignEnrollment.lead_id == lead_id)
+        .where(CampaignEnrollment.status == "active")
+    )).scalars().all()
+
+    now = datetime.now(timezone.utc)
+    for enrollment in enrollments:
+        enrollment.status = "replied"
+        enrollment.replied_at = now
+        session.add(AuditLog(
+            tenant_id=enrollment.tenant_id,
+            lead_id=lead_id,
+            event="enrollment_replied",
+            old_status="active",
+            new_status="replied",
+            meta={
+                "sender": sender,
+                "subject": subject,
+                "in_reply_to": ses_message_id,
+                "source": "ses_inbound",
+            },
+        ))
+        logger.info(
+            "ses_webhook: enrollment %s marked replied for lead %s (sender=%s)",
+            enrollment.id, lead_id, sender,
+        )
+
+    # Alert admin — a reply is a high-intent signal.
+    # send_admin_alert is sync (boto3), so run in a thread to avoid blocking the event loop.
+    asyncio.create_task(asyncio.to_thread(
+        send_admin_alert,
+        subject=f"[Lead Reply] {sender} replied — {subject[:60]}",
+        html_body=(
+            f"<p>A lead has replied to one of your emails.</p>"
+            f"<p><strong>From:</strong> {sender}<br>"
+            f"<strong>Subject:</strong> {subject}<br>"
+            f"<strong>Lead ID:</strong> {lead_id}</p>"
+            f"<p>Their follow-up sequence has been stopped automatically.</p>"
+        ),
+    ))
+
+    return {
+        "matched": True,
+        "lead_id": str(lead_id),
+        "sender": sender,
+        "enrollments_updated": len(enrollments),
+    }
 
 
 async def _pause_enrollments(session: AsyncSession, email_addresses: list[str], event: str) -> None:

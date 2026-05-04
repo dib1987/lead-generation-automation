@@ -29,6 +29,6 @@ class EmailLog(Base):
     subject: Mapped[str] = mapped_column(String(500), nullable=False)
     body_preview: Mapped[str | None] = mapped_column(Text, nullable=True)
     ses_message_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    # sent / failed / bounced
+    # sent / failed / bounce / complaint
     status: Mapped[str] = mapped_column(String(50), nullable=False, default="sent")
     sent_at: Mapped[datetime] = mapped_column(server_default=text("now()"), index=True)

@@ -1,0 +1,198 @@
+- generic [ref=e1]:
+  - generic [ref=e23]:
+    - generic [ref=e24]:
+      - generic [ref=e26]:
+        - generic [ref=e28]: AH
+        - generic [ref=e29]:
+          - generic [ref=e30]: africa_travel
+          - generic [ref=e31]: Admin
+      - generic [ref=e32]:
+        - generic [ref=e33] [cursor=pointer]:
+          - img [ref=e34]
+          - text: Dashboard
+        - generic [ref=e39] [cursor=pointer]:
+          - img [ref=e40]
+          - text: Leads
+        - generic [ref=e45] [cursor=pointer]:
+          - img [ref=e46]
+          - text: Emails
+      - button "Sign Out" [ref=e50] [cursor=pointer]
+    - generic [ref=e51]:
+      - generic [ref=e52]:
+        - generic [ref=e53]: Leads
+        - generic [ref=e54]: "tenant: africa_travel"
+      - generic [ref=e99]:
+        - heading "Leads" [level=2] [ref=e100]
+        - paragraph [ref=e101]: All captured leads for this tenant.
+        - generic [ref=e102]:
+          - combobox [ref=e103]:
+            - option "All Statuses"
+            - option "Received"
+            - option "Processing"
+            - option "Email Sent"
+            - option "Email Failed" [selected]
+            - option "Completed"
+          - generic [ref=e104]:
+            - img [ref=e105]
+            - textbox "Search by email…" [ref=e108]
+          - button "Refresh" [ref=e109] [cursor=pointer]
+        - table [ref=e111]:
+          - rowgroup [ref=e112]:
+            - row "Name Email Destination Status Score Created" [ref=e113]:
+              - columnheader "Name" [ref=e114]
+              - columnheader "Email" [ref=e115]
+              - columnheader "Destination" [ref=e116]
+              - columnheader "Status" [ref=e117]
+              - columnheader "Score" [ref=e118]
+              - columnheader "Created" [ref=e119]
+          - rowgroup [ref=e120]:
+            - row "Test User test@example.com Botswana email failed 20 04 May 2026 02:32" [ref=e330] [cursor=pointer]:
+              - cell "Test User" [ref=e331]
+              - cell "test@example.com" [ref=e332]
+              - cell "Botswana" [ref=e333]
+              - cell "email failed" [ref=e334]:
+                - generic [ref=e335]: email failed
+              - cell "20" [ref=e336]
+              - cell "04 May 2026 02:32" [ref=e337]
+            - row "Smoke Test Lead ratelimit.smoke.1c@example.com Kenya email failed 35 03 May 2026 05:39" [ref=e338] [cursor=pointer]:
+              - cell "Smoke Test Lead" [ref=e339]
+              - cell "ratelimit.smoke.1c@example.com" [ref=e340]
+              - cell "Kenya" [ref=e341]
+              - cell "email failed" [ref=e342]:
+                - generic [ref=e343]: email failed
+              - cell "35" [ref=e344]
+              - cell "03 May 2026 05:39" [ref=e345]
+            - row "Priya Sharma priya.test.leadgen@gmail.com Tanzania Serengeti email failed 70 29 Apr 2026 06:25" [ref=e346] [cursor=pointer]:
+              - cell "Priya Sharma" [ref=e347]
+              - cell "priya.test.leadgen@gmail.com" [ref=e348]
+              - cell "Tanzania Serengeti" [ref=e349]
+              - cell "email failed" [ref=e350]:
+                - generic [ref=e351]: email failed
+              - cell "70" [ref=e352]
+              - cell "29 Apr 2026 06:25" [ref=e353]
+            - row "Lena Fischer lena.fischer.test@example.com Botswana Okavango Delta email failed 70 29 Apr 2026 05:31" [ref=e354] [cursor=pointer]:
+              - cell "Lena Fischer" [ref=e355]
+              - cell "lena.fischer.test@example.com" [ref=e356]
+              - cell "Botswana Okavango Delta" [ref=e357]
+              - cell "email failed" [ref=e358]:
+                - generic [ref=e359]: email failed
+              - cell "70" [ref=e360]
+              - cell "29 Apr 2026 05:31" [ref=e361]
+        - generic [ref=e201]:
+          - generic [ref=e202]: 1–4 of 4
+          - generic [ref=e203]:
+            - button "← Prev" [disabled] [ref=e204]
+            - button "Next →" [disabled] [ref=e205]
+  - generic [ref=e18]:
+    - generic [ref=e19]:
+      - heading "Lead Detail" [level=3] [ref=e20]
+      - button "✕ Close" [active] [ref=e21] [cursor=pointer]
+    - generic [ref=e22]:
+      - generic [ref=e207]:
+        - generic [ref=e208]:
+          - heading "Test User" [level=3] [ref=e209]
+          - generic [ref=e210]: email failed
+        - generic [ref=e211]:
+          - text: "test@example.com · Score:"
+          - strong [ref=e212]: "20"
+      - generic [ref=e213]:
+        - heading "Form Data" [level=4] [ref=e214]
+        - table [ref=e215]:
+          - rowgroup [ref=e216]:
+            - row "adults 2" [ref=e217] [cursor=pointer]:
+              - cell "adults" [ref=e218]
+              - cell "2" [ref=e219]
+            - row "full name Test User" [ref=e220] [cursor=pointer]:
+              - cell "full name" [ref=e221]
+              - cell "Test User" [ref=e222]
+            - row "destination Botswana" [ref=e223] [cursor=pointer]:
+              - cell "destination" [ref=e224]
+              - cell "Botswana" [ref=e225]
+            - row "travel year 2026" [ref=e226] [cursor=pointer]:
+              - cell "travel year" [ref=e227]
+              - cell "2026" [ref=e228]
+            - row "budget range —" [ref=e229] [cursor=pointer]:
+              - cell "budget range" [ref=e230]
+              - cell "—" [ref=e231]
+            - row "phone number 0821234567" [ref=e232] [cursor=pointer]:
+              - cell "phone number" [ref=e233]
+              - cell "0821234567" [ref=e234]
+            - row "travel month June" [ref=e235] [cursor=pointer]:
+              - cell "travel month" [ref=e236]
+              - cell "June" [ref=e237]
+            - row "adult age range —" [ref=e238] [cursor=pointer]:
+              - cell "adult age range" [ref=e239]
+              - cell "—" [ref=e240]
+            - row "trip motivation —" [ref=e241] [cursor=pointer]:
+              - cell "trip motivation" [ref=e242]
+              - cell "—" [ref=e243]
+            - row "special requests —" [ref=e244] [cursor=pointer]:
+              - cell "special requests" [ref=e245]
+              - cell "—" [ref=e246]
+            - row "children under 12 —" [ref=e247] [cursor=pointer]:
+              - cell "children under 12" [ref=e248]
+              - cell "—" [ref=e249]
+            - row "phone country code +27" [ref=e250] [cursor=pointer]:
+              - cell "phone country code" [ref=e251]
+              - cell "+27" [ref=e252]
+            - row "trip duration days —" [ref=e253] [cursor=pointer]:
+              - cell "trip duration days" [ref=e254]
+              - cell "—" [ref=e255]
+            - row "accommodation preference —" [ref=e256] [cursor=pointer]:
+              - cell "accommodation preference" [ref=e257]
+              - cell "—" [ref=e258]
+            - row "preferred contact method Email" [ref=e259] [cursor=pointer]:
+              - cell "preferred contact method" [ref=e260]
+              - cell "Email" [ref=e261]
+      - generic [ref=e262]:
+        - heading "Emails (4)" [level=4] [ref=e263]
+        - generic [ref=e264]:
+          - generic [ref=e265]:
+            - generic [ref=e266]: Step 0 — Your Botswana journey — a first look, Test
+            - generic [ref=e267]: failed
+          - generic [ref=e268]: 04 May 2026 02:32
+          - button "Preview ▸" [ref=e269] [cursor=pointer]
+        - generic [ref=e270]:
+          - generic [ref=e271]:
+            - generic [ref=e272]: Step 0 — Your Botswana journey — a first look, Test
+            - generic [ref=e273]: failed
+          - generic [ref=e274]: 04 May 2026 02:33
+          - button "Preview ▸" [ref=e275] [cursor=pointer]
+        - generic [ref=e276]:
+          - generic [ref=e277]:
+            - generic [ref=e278]: Step 0 — Your Botswana journey — a first look, Test
+            - generic [ref=e279]: failed
+          - generic [ref=e280]: 04 May 2026 02:34
+          - button "Preview ▸" [ref=e281] [cursor=pointer]
+        - generic [ref=e282]:
+          - generic [ref=e283]:
+            - generic [ref=e284]: Step 0 — Your Botswana journey — a first look, Test
+            - generic [ref=e285]: failed
+          - generic [ref=e286]: 04 May 2026 02:35
+          - button "Preview ▸" [ref=e287] [cursor=pointer]
+      - generic [ref=e288]:
+        - heading "Audit Trail" [level=4] [ref=e289]
+        - generic [ref=e292]:
+          - generic [ref=e293]: lead_processing
+          - generic [ref=e294]: received → processing · 04 May 2026 02:32
+        - generic [ref=e297]:
+          - generic [ref=e298]: email_failed
+          - generic [ref=e299]: processing → email_failed · 04 May 2026 02:32
+        - generic [ref=e302]:
+          - generic [ref=e303]: lead_processing
+          - generic [ref=e304]: email_failed → processing · 04 May 2026 02:33
+        - generic [ref=e307]:
+          - generic [ref=e308]: email_failed
+          - generic [ref=e309]: processing → email_failed · 04 May 2026 02:33
+        - generic [ref=e312]:
+          - generic [ref=e313]: lead_processing
+          - generic [ref=e314]: email_failed → processing · 04 May 2026 02:34
+        - generic [ref=e317]:
+          - generic [ref=e318]: email_failed
+          - generic [ref=e319]: processing → email_failed · 04 May 2026 02:34
+        - generic [ref=e322]:
+          - generic [ref=e323]: lead_processing
+          - generic [ref=e324]: email_failed → processing · 04 May 2026 02:35
+        - generic [ref=e327]:
+          - generic [ref=e328]: email_failed
+          - generic [ref=e329]: processing → email_failed · 04 May 2026 02:35

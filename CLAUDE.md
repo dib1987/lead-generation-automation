@@ -107,6 +107,7 @@ POST /api/v1/webhooks/ses?token=<WEBHOOK_SECRET>
   → SubscriptionConfirmation → auto-confirm via SubscribeURL
   → Bounce (Permanent only) → pause CampaignEnrollment + audit log
   → Complaint → pause CampaignEnrollment + audit log
+  → Received (inbound reply) → match In-Reply-To → set enrollment replied + audit log + admin alert
 
 GET /api/v1/admin/{tenant_slug}/dashboard      → KPIs + status breakdown
 GET /api/v1/admin/{tenant_slug}/leads          → paginated list (filter by status/email)
@@ -195,7 +196,7 @@ active → completed   (all steps sent)
 | 1B | Services, Celery tasks, API route, tenant/campaign configs, frontend form, live email pipeline | **Complete** |
 | 1C | Production hardening — failure alerting, SES bounce webhook, rate limiting, seed script, structured logging | **Complete** |
 | 2 | Multi-tenant admin dashboard — leads view, email history, cost tracking | **Complete** |
-| 3 | Webhook handling — SES bounce/complaint, reply detection | **Not started** |
+| 3 | Webhook handling — SES bounce/complaint, reply detection | **Complete** |
 
 ### Key non-obvious decisions made in Phase 1B
 - **Sync DB session for Celery** (`db/sync_session.py`): asyncpg is incompatible with Celery prefork workers. A separate psycopg2-backed sync session factory is used in all Celery tasks.
@@ -216,6 +217,13 @@ active → completed   (all steps sent)
 - **Admin dashboard** (`admin/index.html`): vanilla JS SPA served from the `admin/` directory. Login stores tenant + API key in `localStorage` for session persistence. Tabs: Dashboard (KPI cards + status breakdown bars), Leads (filterable + searchable table with slide-in detail panel), Emails (filterable log with body preview modal).
 - **Admin schemas** (`schemas/admin.py`): Pydantic v2 models with `from_attributes=True` for ORM → response serialization. `LeadSummary` flattens `form_data.full_name` and `form_data.destination` for the table view.
 - **`ADMIN_API_KEY` env var** added to `settings.py`. Leave empty in dev to disable auth.
+
+### Key non-obvious decisions made in Phase 3
+- **Reply detection via SES inbound** (`api/v1/webhooks.py`): The existing `POST /api/v1/webhooks/ses` endpoint handles a third notification type: `Received`. When a lead replies, SES inbound receipt rules publish an SNS notification with `notificationType: Received`. The handler extracts `mail.commonHeaders.inReplyTo`, strips angle brackets, and looks up the matching `email_logs.ses_message_id`.
+- **In-Reply-To angle bracket stripping**: SES Message-IDs arrive wrapped in `<...>` in the `In-Reply-To` header (e.g. `<0102abc@us-east-1.amazonses.com>`). The lookup strips these before querying `email_logs`.
+- **`replied_at` column on `campaign_enrollments`**: Migration `a7f3c891d042` adds a nullable `DateTime` column. Set when an enrollment transitions to `replied`.
+- **Admin alert on reply**: `send_admin_alert()` fires when a reply is matched — a reply is a high-intent signal and the admin should know immediately.
+- **Infrastructure prerequisite**: SES inbound receipt rules must be configured manually in AWS to publish to an SNS topic that delivers to this webhook endpoint. The code handles the notification; the AWS wiring is ops config.
 
 ---
 

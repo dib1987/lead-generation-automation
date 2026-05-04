@@ -1,13 +1,17 @@
 # Lead Generation System — Business Flow & Requirements
 
 > **Living document.** Update this file whenever business rules, flows, or requirements change.
-> Last updated: 2026-04-29
+> Last updated: 2026-05-04
 
 ---
 
 ## What This System Does
 
 A prospect fills in a web form. Within 60 seconds they receive a rich, AI-personalised email written specifically for them — their destination, their travel dates, their group, their budget. Over the following 14 days, five more emails fire automatically. Every action is logged. Every lead is scored. Their details land in a CRM. No human needs to be in the loop.
+
+If the lead replies to any email — their sequence stops immediately. The admin is alerted. A human can take over from that point.
+
+If an email bounces permanently or the lead marks it as spam — their sequence pauses immediately. No further emails are sent.
 
 **Current demo tenant:** Africa Horizons Travel (luxury African safari and travel company)
 **Purpose:** Portfolio project to demonstrate to potential clients and win projects.
@@ -19,9 +23,12 @@ A prospect fills in a web form. Within 60 seconds they receive a rich, AI-person
 | Component | What it does |
 |---|---|
 | Frontend form | Captures lead data — 9 required fields + 7 optional |
-| API route | Validates, deduplicates, creates the lead record, queues the task |
-| process_lead (Celery task) | Day 0 pipeline — scores, generates email via Claude, sends via SES, syncs CRM |
-| run_followup (Celery Beat) | Fires every 15 minutes — sends the next email in the sequence for any lead that is due |
+| `POST /api/v1/leads/{tenant_slug}` | Validates, deduplicates, creates the lead record, queues the task |
+| `process_lead` (Celery task) | Day 0 pipeline — scores, generates email via Claude, sends via SES, syncs CRM |
+| `run_followup` (Celery Beat) | Fires every 15 minutes — sends the next email in the sequence for any lead that is due |
+| `POST /api/v1/webhooks/ses` | Receives SNS notifications — handles bounces, complaints, and inbound replies |
+| Admin dashboard (`admin/index.html`) | Vanilla JS SPA — KPI cards, leads table with detail view, email log |
+| `GET /api/v1/admin/{tenant}/…` | Admin API — dashboard, leads, lead detail, email logs |
 | Services layer | Thin wrappers for Claude, SES, HubSpot, and audit logging |
 | Database | PostgreSQL — 7 tables tracking every lead, email, cost, and audit event |
 
@@ -43,7 +50,7 @@ email_sent       email_failed
 completed
 ```
 
-### Status definitions
+### Lead status definitions
 
 | Status | Meaning |
 |---|---|
@@ -59,14 +66,14 @@ completed
 |---|---|
 | `active` | Enrolled in sequence, emails still firing |
 | `completed` | All steps sent |
-| `paused` | Bounce or complaint received — sequence halted |
-| `replied` | Prospect replied to an email — sequence stops immediately |
+| `paused` | Permanent bounce or complaint received — sequence halted |
+| `replied` | Prospect replied to an email — sequence stops immediately, admin alerted |
 
 ---
 
 ## Stage 1 — The Form (Frontend)
 
-The prospect fills in the Africa Horizons Travel lead capture form.
+The prospect fills in the Africa Horizons Travel lead capture form at `frontend/index.html`.
 
 ### Required fields (must be filled to submit)
 
@@ -100,7 +107,13 @@ The prospect fills in the Africa Horizons Travel lead capture form.
 
 ## Stage 2 — The API Route (`POST /api/v1/leads/{tenant_slug}`)
 
-The server receives the form payload. Before creating anything it runs a **deduplication check**.
+The server receives the form payload. Before creating anything it runs two checks: **rate limiting** and **deduplication**.
+
+### Rate limiting
+
+- Redis-backed sliding window: 3 submissions per IP per hour
+- Returns HTTP 429 on breach
+- Fails open if Redis is unreachable — rate limiting is a protection layer, not a critical gate
 
 ### Deduplication rules
 
@@ -124,20 +137,20 @@ Runs in the background after the API route returns 202. The visitor does not wai
 ### Full step-by-step flow
 
 ```
-1. Fetch Lead + Tenant from database
-2. Load tenant config from JSON: config/tenants/{slug}.json
-3. Load campaign config from JSON: config/campaigns/{slug}.json
-4. Safety dedup check (idempotency — Celery can retry tasks)
-5. Update lead status → "processing" + write audit_log
-6. Score the lead (0–100)
-7. Save lead_score to database
-8. Find or create Campaign DB row (bootstrapped from JSON on first run)
-9. Generate Day 0 email via Claude API
-10. Send email via AWS SES
-11. Write EmailLog row
-12. Create CampaignEnrollment (step=0, status=active, next_send_at = now + 2 days)
-13. Update lead status → "email_sent" + write audit_log
-14. Sync contact to HubSpot CRM (non-blocking — failure is logged, not fatal)
+1.  Fetch Lead + Tenant from database
+2.  Load tenant config from JSON: config/tenants/{slug}.json
+3.  Load campaign config from JSON: config/campaigns/{slug}.json
+4.  Safety dedup check (idempotency — Celery can retry tasks)
+5.  Update lead status → "processing" + write audit_log
+6.  Score the lead (0–100)
+7.  Save lead_score to database
+8.  Find or create Campaign DB row (bootstrapped from JSON on first run)
+9.  Generate Day 0 email via Claude API → write llm_cost_logs
+10. Send email via AWS SES → write email_logs
+11. Create CampaignEnrollment (step=0, status=active, next_send_at = enrolled_at + 2 days)
+12. Update lead status → "email_sent" + write audit_log
+13. Sync contact to HubSpot CRM (new session, non-blocking — failure is logged, not fatal)
+[on 3rd retry failure] → send admin alert email
 ```
 
 ### Lead scoring rules (0–100)
@@ -162,17 +175,18 @@ Scoring tells the travel designer which leads to prioritise. Higher score = high
 | Trip duration: 7–9 days | +5 |
 | **Maximum** | **100** |
 
-Score is saved on the Lead row. Not used for routing logic yet — available for CRM, dashboards, and future prioritisation features.
+Score is saved on the Lead row. Used in the admin dashboard for lead prioritisation. Available for future routing logic (e.g. high-score leads get WhatsApp outreach).
 
 ### Email generation rules (Claude API)
 
-- Model: Claude (Anthropic API — latest Sonnet or configured model)
+- Model: Anthropic Claude (configurable per tenant — defaults to claude-sonnet-4-6)
 - Input: the campaign step's `prompt_template` + all form data as variables
 - `first_name` is extracted from `full_name` (first word before space)
 - `signature_name` is injected from tenant config
 - Missing optional fields default to `"Not specified"` in the prompt
 - Claude outputs **HTML body only** — `<p>` tags, no `<html>/<head>/<body>` envelope
 - The email service wraps the body in a full HTML envelope before sending
+- Markdown code fences (` ```html … ``` `) are stripped before the body reaches SES
 - Every Claude call writes a row to `llm_cost_logs`:
   - `cost_usd = (input_tokens × $0.000003) + (output_tokens × $0.000015)`
   - This enables per-lead, per-tenant, per-step cost tracking
@@ -181,16 +195,22 @@ Score is saved on the Lead row. Not used for routing logic yet — available for
 
 - Sender: `SES_VERIFIED_SENDER` environment variable (never hardcoded)
 - From name: `ses.from_name` from tenant config JSON
-- Reply-to: `ses.reply_to` from tenant config JSON
+- Reply-to: `ses.reply_to` from tenant config JSON (leads reply to this address)
 - After send: writes `EmailLog` row (to address, subject, SES message ID, step number, status)
 - On failure: logs to `audit_logs` with event `email_failed`, updates lead status, Celery retries up to 3×
+
+### Failure alerting (process_lead)
+
+- After all 3 Celery retries are exhausted, `_send_failure_alert()` is called
+- Sends a plain SES email to `ADMIN_ALERT_EMAIL` with the lead ID and error
+- Silently skips if `ADMIN_ALERT_EMAIL` is not configured
 
 ### CRM sync rules (HubSpot)
 
 - Upserts contact using email as the dedup key
 - Maps form fields to HubSpot contact properties
-- Skips `owner_id`, `pipeline_id`, `deal_stage_id` if null in tenant config (currently always null — HubSpot not yet configured for Africa Horizons)
-- **Non-blocking:** if HubSpot fails (network error, bad key, service down), the failure is logged to `audit_logs` — the pipeline does NOT crash. The email was already sent; CRM sync is recoverable
+- Skips `owner_id`, `pipeline_id`, `deal_stage_id` if null in tenant config
+- **Non-blocking:** if HubSpot fails, the failure is logged to `audit_logs` — the pipeline does NOT crash. The email was already sent; CRM sync is recoverable
 - On success: saves `crm_contact_id` and `crm_synced_at` to the Lead row
 
 ---
@@ -201,24 +221,31 @@ Score is saved on the Lead row. Not used for routing logic yet — available for
 
 Celery Beat fires `run_followup` every 15 minutes.
 
-The task queries: `SELECT * FROM campaign_enrollments WHERE next_send_at <= NOW() AND status = 'active'`
+The task queries:
+```sql
+SELECT id FROM campaign_enrollments
+WHERE next_send_at <= NOW() AND status = 'active'
+```
 
-For each enrollment that is due, it:
-1. Loads the lead + tenant + campaign from DB
-2. Gets the next step config from the campaign JSON
-3. Generates the next email via Claude
-4. Sends via SES
-5. Writes `EmailLog` row
-6. Increments `current_step`
-7. If all steps complete → enrollment `status = completed`, lead `status = completed`
-8. If more steps remain → sets `next_send_at = enrolled_at + timedelta(days=next_step.delay_days)`
-9. Writes `audit_log` row
+For each enrollment that is due, it processes in its own isolated DB session:
+
+1. Re-fetch enrollment; if status is no longer `active` — skip (safety check)
+2. Load lead + tenant + campaign from DB
+3. Get the next step config from the campaign JSON
+4. Generate the next email via Claude → write `llm_cost_logs`
+5. Send via SES → write `EmailLog` row
+6. Increment `current_step`
+7. If this was the **last step** → `enrollment.status = completed`, `lead.status = completed`, write `sequence_completed` audit event
+8. If more steps remain → `next_send_at = enrolled_at + timedelta(days=next_step.delay_days)`
 
 **Rule: `delay_days` is always relative to `enrolled_at`, not relative to the previous email.**
 Day 8 always fires 8 days after enrollment. If Day 5 was delayed by a retry, Day 8 is unaffected.
 
 **Rule: failures on individual enrollments are isolated.**
 If 20 leads are due and one fails, the other 19 still get their emails.
+
+**Rule: paused and replied enrollments are never processed.**
+The `WHERE status = 'active'` filter excludes them. No code change needed when a lead replies.
 
 ---
 
@@ -235,22 +262,92 @@ If 20 leads are due and one fails, the other 19 still get their emails.
 
 ---
 
+## Stage 5 — SES Webhook (`POST /api/v1/webhooks/ses`)
+
+AWS SNS delivers SES delivery notifications and inbound email events to this endpoint.
+
+**Security:** query parameter `?token=<WEBHOOK_SECRET>` guards the endpoint. Auth skipped if `WEBHOOK_SECRET` is empty (dev only).
+
+### Subscription confirmation
+
+When the SNS topic is first configured, SNS sends a `SubscriptionConfirmation` message. The webhook auto-confirms by making a GET request to the `SubscribeURL` in the envelope. Required before SNS sends real notifications.
+
+### Permanent bounce
+
+- `notificationType: Bounce` + `bounceType: Permanent`
+- Affected email addresses extracted from `bounce.bouncedRecipients`
+- For each address: all active enrollments found and set to `paused` + audit log written
+- Email log rows for that address set to `status = bounce`
+- Transient bounces (mailbox full) are **ignored** — they may recover on their own
+
+### Complaint
+
+- `notificationType: Complaint`
+- Affected email addresses extracted from `complaint.complainedRecipients`
+- For each address: all active enrollments found and set to `paused` + audit log written
+- Email log rows for that address set to `status = complaint`
+
+### Reply detection (inbound email)
+
+This is the high-intent signal. When a lead replies to any outbound email:
+
+1. SES inbound receipt rules route the email to SNS, which delivers `notificationType: Received`
+2. The webhook extracts `mail.commonHeaders.inReplyTo` from the SNS payload
+3. Angle brackets are stripped from the In-Reply-To value (SES wraps message IDs as `<id@ses>`)
+4. The stripped value is looked up in `email_logs.ses_message_id` to find the original outbound email
+5. The lead's active enrollment(s) are found and set to `replied` + `replied_at = now()`
+6. An `enrollment_replied` audit log row is written with sender, subject, and original message ID
+7. An admin alert email is fired (asynchronously, non-blocking) — a reply = hot lead
+
+**Infrastructure prerequisite:** SES inbound receipt rules must be configured in AWS to route email for the `reply_to` address through the SNS topic that delivers to this webhook endpoint. This is a one-time AWS console configuration step — not application code.
+
+---
+
+## Stage 6 — Admin Dashboard (`GET /api/v1/admin/{tenant_slug}/…`)
+
+All admin routes require the `X-Admin-Key` header matching `ADMIN_API_KEY` env var. Auth skipped if the env var is empty.
+
+### Endpoints
+
+| Endpoint | Returns |
+|---|---|
+| `GET /{tenant}/dashboard` | `total_leads`, `leads_by_status` breakdown, `emails_sent`, `avg_lead_score` |
+| `GET /{tenant}/leads` | Paginated leads list (filter by `status`, search by `q` email) |
+| `GET /{tenant}/leads/{id}` | Full lead detail: form data, email history, complete audit trail |
+| `GET /{tenant}/email-logs` | Paginated email log (filter by `status`, `lead_id`) |
+
+### Admin SPA (`admin/index.html`)
+
+Vanilla JS single-page app. No build step. Opened directly in browser or via static server.
+
+- **Login:** enter tenant slug + `ADMIN_API_KEY` value → stored in `localStorage`
+- **Dashboard tab:** KPI cards (total leads, emails sent, avg score) + status distribution bars
+- **Leads tab:** filterable + searchable paginated table; click a row → slide-in detail panel with audit trail
+- **Emails tab:** paginated email log with body preview modal
+- **Status colours:** `received` blue, `email_sent` green, `email_failed` red, `completed` teal, `paused` pink, `replied` amber (bold)
+
+---
+
 ## Audit Trail Rules
 
 Every meaningful event writes a row to `audit_logs`. This table is **append-only and never deleted**.
 
-| Event written | Trigger |
+| Event | Trigger |
 |---|---|
 | `lead_received` | Lead row created in route handler |
 | `lead_processing` | process_lead task starts |
-| `email_sent` | SES send succeeded |
+| `email_sent` | Day 0 SES send succeeded |
 | `email_failed` | SES or Claude raised an exception |
 | `crm_synced` | HubSpot upsert succeeded |
 | `crm_sync_failed` | HubSpot raised an exception |
 | `followup_sent` | Beat task sent a follow-up email |
+| `followup_email_failed` | Beat task Claude or SES error |
 | `sequence_completed` | Final step sent, enrollment closed |
+| `enrollment_bounce` | Permanent bounce received via webhook |
+| `enrollment_complaint` | Spam complaint received via webhook |
+| `enrollment_replied` | Lead replied — sequence stopped, admin alerted |
 
-The audit trail is the source of truth for debugging, billing, compliance, and future dashboards.
+The audit trail is the source of truth for debugging, billing, compliance, and dashboards.
 
 ---
 
@@ -261,8 +358,11 @@ The audit trail is the source of truth for debugging, billing, compliance, and f
 | Claude API | Generate email body | Log to audit_logs, update lead status → email_failed, Celery retries up to 3× |
 | AWS SES | Send email, write EmailLog | Log to audit_logs, update lead status → email_failed, Celery retries |
 | HubSpot | Write crm_contact_id to lead | Log to audit_logs — pipeline continues, no retry (non-critical path) |
+| SNS webhook (bounce/complaint/reply) | Pause or mark replied enrollment | Log and return gracefully — never raise 5xx to SNS |
 
-**Core rule: the pipeline must never crash over a CRM failure.** The email was already sent. HubSpot is a nice-to-have on Day 0; the prospect's experience is not.
+**Core rule: the pipeline must never crash over a CRM failure.** The email was already sent. HubSpot is a nice-to-have on Day 0.
+
+**Core rule: the webhook must always return 2xx.** SNS retries on anything other than 2xx. Invalid or unrecognised messages are logged and return `{"status": "ignored"}` — never a 4xx or 5xx.
 
 ---
 
@@ -285,6 +385,7 @@ All tenant-specific and campaign-specific behaviour lives in JSON config files. 
 - Tenant lookup happens by slug from the URL path (`/api/v1/leads/africa_travel`)
 - If the slug doesn't exist or the tenant is inactive → 404
 - Campaign enrollment always belongs to a specific tenant + campaign combination
+- Admin API is scoped to a tenant slug — operators only see their own data
 
 ---
 
@@ -323,7 +424,7 @@ www.africahorizonstravel.com
 ---
 
 > **Note on sample:** This is a representative example of what Claude generates. Actual output will vary slightly per lead based on all form fields provided.
-> **Email format rules (as of 2026-04-29):** Opens with "Hello, {first_name}," → intro line with company website → 2 short body paragraphs → CTA mentions "via email and phone" → signature includes website.
+> **Email format rules:** Opens with "Hello, {first_name}," → intro line with company website → 2 short body paragraphs → CTA mentions "via email and phone" → signature includes website.
 
 ---
 
@@ -346,20 +447,60 @@ www.africahorizonstravel.com
 
 | Phase | Description | Status |
 |---|---|---|
-| 1A | DB models, Docker, health endpoint, migrations | Complete |
-| 1B | Services, Celery tasks, API route, tenant/campaign configs, frontend form | In progress |
-| 1C | Production hardening, monitoring, error alerting | Not started |
-| 2 | Multi-tenant admin dashboard | Not started |
-| 3 | Webhook handling (HubSpot reply detection, SES bounce/complaint) | Not started |
+| 1A | DB models, Docker, health endpoint, migrations | **Complete** |
+| 1B | Services, Celery tasks, API route, tenant/campaign configs, frontend form, live email pipeline | **Complete** |
+| 1C | Production hardening — failure alerting, SES bounce webhook, rate limiting, seed script, structured logging | **Complete** |
+| 2 | Multi-tenant admin dashboard — leads view, email history, cost tracking, KPI dashboard | **Complete** |
+| 3 | Reply detection — SES inbound webhook, enrollment marked replied, admin alert | **Complete** |
+
+---
+
+## How to Add a New Tenant
+
+1. Copy `backend/app/config/tenants/africa_travel.json` → `<new_slug>.json`
+2. Copy `backend/app/config/campaigns/africa_14day.json` → `<new_slug>_campaign.json`
+3. Update company name, prompts, branding, and CRM config in both files
+4. Run `docker-compose exec api python seed.py` — inserts the new tenant row
+5. The endpoint is live with no code changes: `POST /api/v1/leads/<new_slug>`
+
+---
+
+## Deployment Checklist
+
+```bash
+# 1. Start services
+docker-compose up --build
+
+# 2. Apply migrations
+docker-compose exec api alembic upgrade head
+
+# 3. Seed tenant rows from config/tenants/*.json (idempotent)
+docker-compose exec api python seed.py
+
+# 4. Verify API is up
+curl http://localhost:8000/api/v1/health
+
+# 5. Submit a test lead
+curl -X POST http://localhost:8000/api/v1/leads/africa_travel \
+  -H "Content-Type: application/json" \
+  -d '{"full_name":"Test User","email":"test@example.com","phone_country_code":"+27","phone_number":"0821234567","preferred_contact_method":"Email","destination":"Botswana","travel_month":"June","travel_year":"2026","adults":"2"}'
+
+# 6. Verify admin API
+curl -H "X-Admin-Key: <ADMIN_API_KEY>" http://localhost:8000/api/v1/admin/africa_travel/dashboard
+
+# 7. Open admin dashboard
+# admin/index.html — any static server at port 5500 or 8080 works
+# Login: tenant=africa_travel, key=<ADMIN_API_KEY>
+```
 
 ---
 
 ## Open Questions / Future Decisions
 
-- [ ] What should happen when a prospect replies to an email? (Phase 3 — webhook from SES/HubSpot to set enrollment status = `replied`)
-- [ ] Should lead_score drive any routing logic (e.g., high-score leads get a WhatsApp outreach on Day 1)?
+- [ ] Should lead_score drive routing logic (e.g., high-score leads get a WhatsApp outreach on Day 1)?
 - [ ] Should the system support A/B testing of email sequences (different prompt templates for split testing)?
-- [ ] What is the strategy for adding a second tenant? (Documented above — zero code changes needed)
+- [ ] Should `email_failed` leads be surfaced more prominently in the admin dashboard (not just buried in audit trail)?
+- [ ] Should the admin dashboard support a webhook test tool (fire a simulated bounce/reply to verify the flow)?
 
 ---
 

@@ -1,0 +1,327 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e23]:
+    - generic [ref=e24]:
+      - generic [ref=e26]:
+        - generic [ref=e28]: AH
+        - generic [ref=e29]:
+          - generic [ref=e30]: africa_travel
+          - generic [ref=e31]: Admin
+      - generic [ref=e32]:
+        - generic [ref=e33] [cursor=pointer]:
+          - img [ref=e34]
+          - text: Dashboard
+        - generic [ref=e39] [cursor=pointer]:
+          - img [ref=e40]
+          - text: Leads
+        - generic [ref=e45] [cursor=pointer]:
+          - img [ref=e46]
+          - text: Emails
+      - button "Sign Out" [ref=e50] [cursor=pointer]
+    - generic [ref=e51]:
+      - generic [ref=e52]:
+        - generic [ref=e53]: Email History
+        - generic [ref=e54]: "tenant: africa_travel"
+      - generic [ref=e378]:
+        - heading "Email History" [level=2] [ref=e379]
+        - paragraph [ref=e380]: All outbound emails sent by the pipeline.
+        - generic [ref=e381]:
+          - combobox [ref=e382]:
+            - option "All Statuses" [selected]
+            - option "Sent"
+            - option "Failed"
+            - option "Bounced"
+            - option "Complaint"
+          - button "Refresh" [ref=e383] [cursor=pointer]
+        - table [ref=e385]:
+          - rowgroup [ref=e386]:
+            - row "To Subject Step Status Sent At Preview" [ref=e387]:
+              - columnheader "To" [ref=e388]
+              - columnheader "Subject" [ref=e389]
+              - columnheader "Step" [ref=e390]
+              - columnheader "Status" [ref=e391]
+              - columnheader "Sent At" [ref=e392]
+              - columnheader "Preview" [ref=e393]
+          - rowgroup [ref=e394]:
+            - row "test@example.com Your Botswana journey — a first look, Test 0 failed 04 May 2026 02:35 View ▸" [ref=e395] [cursor=pointer]:
+              - cell "test@example.com" [ref=e396]
+              - cell "Your Botswana journey — a first look, Test" [ref=e397]
+              - cell "0" [ref=e398]
+              - cell "failed" [ref=e399]:
+                - generic [ref=e400]: failed
+              - cell "04 May 2026 02:35" [ref=e401]
+              - cell "View ▸" [ref=e402]:
+                - button "View ▸" [ref=e403]
+            - row "test@example.com Your Botswana journey — a first look, Test 0 failed 04 May 2026 02:34 View ▸" [ref=e404] [cursor=pointer]:
+              - cell "test@example.com" [ref=e405]
+              - cell "Your Botswana journey — a first look, Test" [ref=e406]
+              - cell "0" [ref=e407]
+              - cell "failed" [ref=e408]:
+                - generic [ref=e409]: failed
+              - cell "04 May 2026 02:34" [ref=e410]
+              - cell "View ▸" [ref=e411]:
+                - button "View ▸" [ref=e412]
+            - row "test@example.com Your Botswana journey — a first look, Test 0 failed 04 May 2026 02:33 View ▸" [ref=e413] [cursor=pointer]:
+              - cell "test@example.com" [ref=e414]
+              - cell "Your Botswana journey — a first look, Test" [ref=e415]
+              - cell "0" [ref=e416]
+              - cell "failed" [ref=e417]:
+                - generic [ref=e418]: failed
+              - cell "04 May 2026 02:33" [ref=e419]
+              - cell "View ▸" [ref=e420]:
+                - button "View ▸" [ref=e421]
+            - row "test@example.com Your Botswana journey — a first look, Test 0 failed 04 May 2026 02:32 View ▸" [ref=e422] [cursor=pointer]:
+              - cell "test@example.com" [ref=e423]
+              - cell "Your Botswana journey — a first look, Test" [ref=e424]
+              - cell "0" [ref=e425]
+              - cell "failed" [ref=e426]:
+                - generic [ref=e427]: failed
+              - cell "04 May 2026 02:32" [ref=e428]
+              - cell "View ▸" [ref=e429]:
+                - button "View ▸" [ref=e430]
+            - row "d.mondal87@gmail.com Your Zimbabwe · Victoria Falls journey — a first look, james 0 sent 03 May 2026 06:23 View ▸" [ref=e431] [cursor=pointer]:
+              - cell "d.mondal87@gmail.com" [ref=e432]
+              - cell "Your Zimbabwe · Victoria Falls journey — a first look, james" [ref=e433]
+              - cell "0" [ref=e434]
+              - cell "sent" [ref=e435]:
+                - generic [ref=e436]: sent
+              - cell "03 May 2026 06:23" [ref=e437]
+              - cell "View ▸" [ref=e438]:
+                - button "View ▸" [ref=e439]
+            - row "ratelimit.smoke.1c@example.com Your Kenya journey — a first look, Smoke 0 failed 03 May 2026 05:42 View ▸" [ref=e440] [cursor=pointer]:
+              - cell "ratelimit.smoke.1c@example.com" [ref=e441]
+              - cell "Your Kenya journey — a first look, Smoke" [ref=e442]
+              - cell "0" [ref=e443]
+              - cell "failed" [ref=e444]:
+                - generic [ref=e445]: failed
+              - cell "03 May 2026 05:42" [ref=e446]
+              - cell "View ▸" [ref=e447]:
+                - button "View ▸" [ref=e448]
+            - row "ratelimit.smoke.1c@example.com Your Kenya journey — a first look, Smoke 0 failed 03 May 2026 05:41 View ▸" [ref=e449] [cursor=pointer]:
+              - cell "ratelimit.smoke.1c@example.com" [ref=e450]
+              - cell "Your Kenya journey — a first look, Smoke" [ref=e451]
+              - cell "0" [ref=e452]
+              - cell "failed" [ref=e453]:
+                - generic [ref=e454]: failed
+              - cell "03 May 2026 05:41" [ref=e455]
+              - cell "View ▸" [ref=e456]:
+                - button "View ▸" [ref=e457]
+            - row "ratelimit.smoke.1c@example.com Your Kenya journey — a first look, Smoke 0 failed 03 May 2026 05:40 View ▸" [ref=e458] [cursor=pointer]:
+              - cell "ratelimit.smoke.1c@example.com" [ref=e459]
+              - cell "Your Kenya journey — a first look, Smoke" [ref=e460]
+              - cell "0" [ref=e461]
+              - cell "failed" [ref=e462]:
+                - generic [ref=e463]: failed
+              - cell "03 May 2026 05:40" [ref=e464]
+              - cell "View ▸" [ref=e465]:
+                - button "View ▸" [ref=e466]
+            - row "ratelimit.smoke.1c@example.com Your Kenya journey — a first look, Smoke 0 failed 03 May 2026 05:39 View ▸" [ref=e467] [cursor=pointer]:
+              - cell "ratelimit.smoke.1c@example.com" [ref=e468]
+              - cell "Your Kenya journey — a first look, Smoke" [ref=e469]
+              - cell "0" [ref=e470]
+              - cell "failed" [ref=e471]:
+                - generic [ref=e472]: failed
+              - cell "03 May 2026 05:39" [ref=e473]
+              - cell "View ▸" [ref=e474]:
+                - button "View ▸" [ref=e475]
+            - row "dibyendumondal87@gmail.com Why Tanzania Serengeti in October is exceptional, James 1 sent 03 May 2026 05:36 View ▸" [ref=e476] [cursor=pointer]:
+              - cell "dibyendumondal87@gmail.com" [ref=e477]
+              - cell "Why Tanzania Serengeti in October is exceptional, James" [ref=e478]
+              - cell "1" [ref=e479]
+              - cell "sent" [ref=e480]:
+                - generic [ref=e481]: sent
+              - cell "03 May 2026 05:36" [ref=e482]
+              - cell "View ▸" [ref=e483]:
+                - button "View ▸" [ref=e484]
+            - row "dibyendumondal87@gmail.com Why Kenya Masai Mara in August is exceptional, Dibyendu 1 sent 03 May 2026 05:36 View ▸" [ref=e485] [cursor=pointer]:
+              - cell "dibyendumondal87@gmail.com" [ref=e486]
+              - cell "Why Kenya Masai Mara in August is exceptional, Dibyendu" [ref=e487]
+              - cell "1" [ref=e488]
+              - cell "sent" [ref=e489]:
+                - generic [ref=e490]: sent
+              - cell "03 May 2026 05:36" [ref=e491]
+              - cell "View ▸" [ref=e492]:
+                - button "View ▸" [ref=e493]
+            - row "priya.test.leadgen@gmail.com Your Tanzania Serengeti journey — a first look, Priya 0 failed 29 Apr 2026 06:29 View ▸" [ref=e494] [cursor=pointer]:
+              - cell "priya.test.leadgen@gmail.com" [ref=e495]
+              - cell "Your Tanzania Serengeti journey — a first look, Priya" [ref=e496]
+              - cell "0" [ref=e497]
+              - cell "failed" [ref=e498]:
+                - generic [ref=e499]: failed
+              - cell "29 Apr 2026 06:29" [ref=e500]
+              - cell "View ▸" [ref=e501]:
+                - button "View ▸" [ref=e502]
+            - row "priya.test.leadgen@gmail.com Your Tanzania Serengeti journey — a first look, Priya 0 failed 29 Apr 2026 06:28 View ▸" [ref=e503] [cursor=pointer]:
+              - cell "priya.test.leadgen@gmail.com" [ref=e504]
+              - cell "Your Tanzania Serengeti journey — a first look, Priya" [ref=e505]
+              - cell "0" [ref=e506]
+              - cell "failed" [ref=e507]:
+                - generic [ref=e508]: failed
+              - cell "29 Apr 2026 06:28" [ref=e509]
+              - cell "View ▸" [ref=e510]:
+                - button "View ▸" [ref=e511]
+            - row "priya.test.leadgen@gmail.com Your Tanzania Serengeti journey — a first look, Priya 0 failed 29 Apr 2026 06:26 View ▸" [ref=e512] [cursor=pointer]:
+              - cell "priya.test.leadgen@gmail.com" [ref=e513]
+              - cell "Your Tanzania Serengeti journey — a first look, Priya" [ref=e514]
+              - cell "0" [ref=e515]
+              - cell "failed" [ref=e516]:
+                - generic [ref=e517]: failed
+              - cell "29 Apr 2026 06:26" [ref=e518]
+              - cell "View ▸" [ref=e519]:
+                - button "View ▸" [ref=e520]
+            - row "dibyendumondal87@gmail.com Your Tanzania Serengeti journey — a first look, James 0 sent 29 Apr 2026 06:26 View ▸" [ref=e521] [cursor=pointer]:
+              - cell "dibyendumondal87@gmail.com" [ref=e522]
+              - cell "Your Tanzania Serengeti journey — a first look, James" [ref=e523]
+              - cell "0" [ref=e524]
+              - cell "sent" [ref=e525]:
+                - generic [ref=e526]: sent
+              - cell "29 Apr 2026 06:26" [ref=e527]
+              - cell "View ▸" [ref=e528]:
+                - button "View ▸" [ref=e529]
+            - row "priya.test.leadgen@gmail.com Your Tanzania Serengeti journey — a first look, Priya 0 failed 29 Apr 2026 06:25 View ▸" [ref=e530] [cursor=pointer]:
+              - cell "priya.test.leadgen@gmail.com" [ref=e531]
+              - cell "Your Tanzania Serengeti journey — a first look, Priya" [ref=e532]
+              - cell "0" [ref=e533]
+              - cell "failed" [ref=e534]:
+                - generic [ref=e535]: failed
+              - cell "29 Apr 2026 06:25" [ref=e536]
+              - cell "View ▸" [ref=e537]:
+                - button "View ▸" [ref=e538]
+            - row "dibyendumondal87@gmail.com Your Kenya Masai Mara journey — a first look, Dibyendu 0 sent 29 Apr 2026 06:02 View ▸" [ref=e539] [cursor=pointer]:
+              - cell "dibyendumondal87@gmail.com" [ref=e540]
+              - cell "Your Kenya Masai Mara journey — a first look, Dibyendu" [ref=e541]
+              - cell "0" [ref=e542]
+              - cell "sent" [ref=e543]:
+                - generic [ref=e544]: sent
+              - cell "29 Apr 2026 06:02" [ref=e545]
+              - cell "View ▸" [ref=e546]:
+                - button "View ▸" [ref=e547]
+        - generic [ref=e548]:
+          - generic [ref=e549]: 1–17 of 17
+          - generic [ref=e550]:
+            - button "← Prev" [disabled] [ref=e551]
+            - button "Next →" [disabled] [ref=e552]
+  - generic [ref=e18]:
+    - generic [ref=e19]:
+      - heading "Lead Detail" [level=3] [ref=e20]
+      - button "✕ Close" [ref=e21] [cursor=pointer]
+    - generic [ref=e22]:
+      - generic [ref=e207]:
+        - generic [ref=e208]:
+          - heading "Test User" [level=3] [ref=e209]
+          - generic [ref=e210]: email failed
+        - generic [ref=e211]:
+          - text: "test@example.com · Score:"
+          - strong [ref=e212]: "20"
+      - generic [ref=e213]:
+        - heading "Form Data" [level=4] [ref=e214]
+        - table [ref=e215]:
+          - rowgroup [ref=e216]:
+            - row "adults 2" [ref=e217] [cursor=pointer]:
+              - cell "adults" [ref=e218]
+              - cell "2" [ref=e219]
+            - row "full name Test User" [ref=e220] [cursor=pointer]:
+              - cell "full name" [ref=e221]
+              - cell "Test User" [ref=e222]
+            - row "destination Botswana" [ref=e223] [cursor=pointer]:
+              - cell "destination" [ref=e224]
+              - cell "Botswana" [ref=e225]
+            - row "travel year 2026" [ref=e226] [cursor=pointer]:
+              - cell "travel year" [ref=e227]
+              - cell "2026" [ref=e228]
+            - row "budget range —" [ref=e229] [cursor=pointer]:
+              - cell "budget range" [ref=e230]
+              - cell "—" [ref=e231]
+            - row "phone number 0821234567" [ref=e232] [cursor=pointer]:
+              - cell "phone number" [ref=e233]
+              - cell "0821234567" [ref=e234]
+            - row "travel month June" [ref=e235] [cursor=pointer]:
+              - cell "travel month" [ref=e236]
+              - cell "June" [ref=e237]
+            - row "adult age range —" [ref=e238] [cursor=pointer]:
+              - cell "adult age range" [ref=e239]
+              - cell "—" [ref=e240]
+            - row "trip motivation —" [ref=e241] [cursor=pointer]:
+              - cell "trip motivation" [ref=e242]
+              - cell "—" [ref=e243]
+            - row "special requests —" [ref=e244] [cursor=pointer]:
+              - cell "special requests" [ref=e245]
+              - cell "—" [ref=e246]
+            - row "children under 12 —" [ref=e247] [cursor=pointer]:
+              - cell "children under 12" [ref=e248]
+              - cell "—" [ref=e249]
+            - row "phone country code +27" [ref=e250] [cursor=pointer]:
+              - cell "phone country code" [ref=e251]
+              - cell "+27" [ref=e252]
+            - row "trip duration days —" [ref=e253] [cursor=pointer]:
+              - cell "trip duration days" [ref=e254]
+              - cell "—" [ref=e255]
+            - row "accommodation preference —" [ref=e256] [cursor=pointer]:
+              - cell "accommodation preference" [ref=e257]
+              - cell "—" [ref=e258]
+            - row "preferred contact method Email" [ref=e259] [cursor=pointer]:
+              - cell "preferred contact method" [ref=e260]
+              - cell "Email" [ref=e261]
+      - generic [ref=e262]:
+        - heading "Emails (4)" [level=4] [ref=e263]
+        - generic [ref=e264]:
+          - generic [ref=e265]:
+            - generic [ref=e266]: Step 0 — Your Botswana journey — a first look, Test
+            - generic [ref=e267]: failed
+          - generic [ref=e268]: 04 May 2026 02:32
+          - button "Preview ▸" [ref=e269] [cursor=pointer]
+        - generic [ref=e270]:
+          - generic [ref=e271]:
+            - generic [ref=e272]: Step 0 — Your Botswana journey — a first look, Test
+            - generic [ref=e273]: failed
+          - generic [ref=e274]: 04 May 2026 02:33
+          - button "Preview ▸" [ref=e275] [cursor=pointer]
+        - generic [ref=e276]:
+          - generic [ref=e277]:
+            - generic [ref=e278]: Step 0 — Your Botswana journey — a first look, Test
+            - generic [ref=e279]: failed
+          - generic [ref=e280]: 04 May 2026 02:34
+          - button "Preview ▸" [ref=e281] [cursor=pointer]
+        - generic [ref=e282]:
+          - generic [ref=e283]:
+            - generic [ref=e284]: Step 0 — Your Botswana journey — a first look, Test
+            - generic [ref=e285]: failed
+          - generic [ref=e286]: 04 May 2026 02:35
+          - button "Preview ▸" [ref=e287] [cursor=pointer]
+      - generic [ref=e288]:
+        - heading "Audit Trail" [level=4] [ref=e289]
+        - generic [ref=e292]:
+          - generic [ref=e293]: lead_processing
+          - generic [ref=e294]: received → processing · 04 May 2026 02:32
+        - generic [ref=e297]:
+          - generic [ref=e298]: email_failed
+          - generic [ref=e299]: processing → email_failed · 04 May 2026 02:32
+        - generic [ref=e302]:
+          - generic [ref=e303]: lead_processing
+          - generic [ref=e304]: email_failed → processing · 04 May 2026 02:33
+        - generic [ref=e307]:
+          - generic [ref=e308]: email_failed
+          - generic [ref=e309]: processing → email_failed · 04 May 2026 02:33
+        - generic [ref=e312]:
+          - generic [ref=e313]: lead_processing
+          - generic [ref=e314]: email_failed → processing · 04 May 2026 02:34
+        - generic [ref=e317]:
+          - generic [ref=e318]: email_failed
+          - generic [ref=e319]: processing → email_failed · 04 May 2026 02:34
+        - generic [ref=e322]:
+          - generic [ref=e323]: lead_processing
+          - generic [ref=e324]: email_failed → processing · 04 May 2026 02:35
+        - generic [ref=e327]:
+          - generic [ref=e328]: email_failed
+          - generic [ref=e329]: processing → email_failed · 04 May 2026 02:35
+  - generic [ref=e554]:
+    - generic [ref=e555]:
+      - heading "Your Zimbabwe · Victoria Falls journey — a first look, james" [level=3] [ref=e556]
+      - button "✕" [ref=e557] [cursor=pointer]
+    - generic [ref=e558]:
+      - paragraph [ref=e559]: Hello, james,
+      - paragraph [ref=e560]:
+        - text: We are The Africa Horizons Travel Design Team — your dedicated journey creators at
+        - link "www.africahorizonstravel.com" [ref=e561] [cursor=pointer]:
+          - /url: https://www.africahorizonstravel.com
+        - text: .
+      - paragraph [ref=e562]: Zimbabwe in July is truly something special, and Victoria Falls is one of those rare places that stops you completely in your tracks. At the height of the dry season, the Zambezi roars with full force, sending mist rising above the canopy like smoke from the earth — it is a moment that stays with you l
