@@ -1,0 +1,46 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: AH
+      - heading "Africa Horizons Travel" [level=1] [ref=e5]
+      - paragraph [ref=e7]: Tailor-made journeys across the African continent
+    - img
+  - generic [ref=e9]:
+    - generic [ref=e120]:
+      - img [ref=e122]
+      - heading "You're All Set" [level=2] [ref=e124]
+      - paragraph [ref=e126]: Thank you! Your Travel Designer will contact you within 24 hours. Please check your spam folder if you don't hear from us.
+    - paragraph [ref=e85]: Your information is handled with care and never shared with third parties.
+  - generic [ref=e87]:
+    - heading "What Happens Next" [level=3] [ref=e88]
+    - generic [ref=e89]:
+      - generic [ref=e90]:
+        - generic [ref=e91]: "01"
+        - generic [ref=e92]:
+          - strong [ref=e93]: Your enquiry is received
+          - paragraph [ref=e94]:
+            - text: We review your destination interest and travel details, usually within the hour. A personalised welcome email lands in your inbox shortly after —
+            - emphasis [ref=e95]: if you don't see it, please check your spam or junk folder.
+      - generic [ref=e96]:
+        - generic [ref=e97]: "02"
+        - generic [ref=e98]:
+          - strong [ref=e99]: A Travel Designer reaches out
+          - paragraph [ref=e100]: A dedicated Africa specialist will contact you within 24 hours via your preferred channel — WhatsApp, email, or call — to discuss your journey in detail.
+      - generic [ref=e101]:
+        - generic [ref=e102]: "03"
+        - generic [ref=e103]:
+          - strong [ref=e104]: Your itinerary takes shape
+          - paragraph [ref=e105]: We craft a fully tailor-made proposal covering flights, lodges, transfers, and curated experiences — no templates, no packages, nothing off the shelf.
+    - generic [ref=e106]:
+      - generic [ref=e107]:
+        - img [ref=e108]
+        - text: Your data is private & never sold
+      - generic [ref=e110]:
+        - img [ref=e111]
+        - text: Response within 24 hours
+      - generic [ref=e114]:
+        - img [ref=e115]
+        - text: No obligation to book
+      - generic [ref=e117]:
+        - img [ref=e118]
+        - text: Specialists in African travel

@@ -367,7 +367,7 @@ async function loadDashboard() {
       { label: 'Total Leads', value: d.total_leads },
       { label: 'Emails Sent', value: d.emails_sent },
       { label: 'Avg Lead Score', value: d.avg_lead_score != null ? d.avg_lead_score.toFixed(1) : '—' },
-      { label: 'Converted', value: d.leads_by_status['completed'] ?? 0 },
+      { label: 'Sequence Completed', value: d.leads_by_status['completed'] ?? 0 },
     ];
     grid.innerHTML = kpis.map(k => `
       <div class="kpi-card">

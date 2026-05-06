@@ -1,0 +1,152 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e23]:
+    - generic [ref=e24]:
+      - generic [ref=e26]:
+        - generic [ref=e28]: AH
+        - generic [ref=e29]:
+          - generic [ref=e30]: africa_travel
+          - generic [ref=e31]: Admin
+      - generic [ref=e32]:
+        - generic [ref=e33] [cursor=pointer]:
+          - img [ref=e34]
+          - text: Dashboard
+        - generic [ref=e39] [cursor=pointer]:
+          - img [ref=e40]
+          - text: Leads
+        - generic [ref=e45] [cursor=pointer]:
+          - img [ref=e46]
+          - text: Emails
+      - button "Sign Out" [ref=e50] [cursor=pointer]
+    - generic [ref=e51]:
+      - generic [ref=e52]:
+        - generic [ref=e53]: Leads
+        - generic [ref=e54]: "tenant: africa_travel"
+      - generic [ref=e99]:
+        - heading "Leads" [level=2] [ref=e100]
+        - paragraph [ref=e101]: All captured leads for this tenant.
+        - generic [ref=e102]:
+          - combobox [ref=e103]:
+            - option "All Statuses" [selected]
+            - option "Received"
+            - option "Processing"
+            - option "Email Sent"
+            - option "Email Failed"
+            - option "Completed"
+          - generic [ref=e104]:
+            - img [ref=e105]
+            - textbox "Search by email…" [ref=e108]
+          - button "Refresh" [ref=e109] [cursor=pointer]
+        - table [ref=e111]:
+          - rowgroup [ref=e112]:
+            - row "Name Email Destination Status Score Created" [ref=e113]:
+              - columnheader "Name" [ref=e114]
+              - columnheader "Email" [ref=e115]
+              - columnheader "Destination" [ref=e116]
+              - columnheader "Status" [ref=e117]
+              - columnheader "Score" [ref=e118]
+              - columnheader "Created" [ref=e119]
+          - rowgroup [ref=e120]:
+            - row "Dib Mondal dibyendumondal87@gmail.com Kenya · Masai Mara Safari email sent 55 06 May 2026 07:16" [ref=e121] [cursor=pointer]:
+              - cell "Dib Mondal" [ref=e122]
+              - cell "dibyendumondal87@gmail.com" [ref=e123]
+              - cell "Kenya · Masai Mara Safari" [ref=e124]
+              - cell "email sent" [ref=e125]:
+                - generic [ref=e126]: email sent
+              - cell "55" [ref=e127]
+              - cell "06 May 2026 07:16" [ref=e128]
+            - row "joy dibofficial87@gmail.com Egypt · Nile & Pyramids email failed 50 04 May 2026 04:31" [ref=e129] [cursor=pointer]:
+              - cell "joy" [ref=e130]
+              - cell "dibofficial87@gmail.com" [ref=e131]
+              - cell "Egypt · Nile & Pyramids" [ref=e132]
+              - cell "email failed" [ref=e133]:
+                - generic [ref=e134]: email failed
+              - cell "50" [ref=e135]
+              - cell "04 May 2026 04:31" [ref=e136]
+            - row "Test User test@example.com Botswana email failed 20 04 May 2026 02:32" [ref=e137] [cursor=pointer]:
+              - cell "Test User" [ref=e138]
+              - cell "test@example.com" [ref=e139]
+              - cell "Botswana" [ref=e140]
+              - cell "email failed" [ref=e141]:
+                - generic [ref=e142]: email failed
+              - cell "20" [ref=e143]
+              - cell "04 May 2026 02:32" [ref=e144]
+            - row "james d.mondal87@gmail.com Zimbabwe · Victoria Falls email sent 40 03 May 2026 06:22" [ref=e145] [cursor=pointer]:
+              - cell "james" [ref=e146]
+              - cell "d.mondal87@gmail.com" [ref=e147]
+              - cell "Zimbabwe · Victoria Falls" [ref=e148]
+              - cell "email sent" [ref=e149]:
+                - generic [ref=e150]: email sent
+              - cell "40" [ref=e151]
+              - cell "03 May 2026 06:22" [ref=e152]
+            - row "Smoke Test Lead ratelimit.smoke.1c@example.com Kenya email failed 35 03 May 2026 05:39" [ref=e153] [cursor=pointer]:
+              - cell "Smoke Test Lead" [ref=e154]
+              - cell "ratelimit.smoke.1c@example.com" [ref=e155]
+              - cell "Kenya" [ref=e156]
+              - cell "email failed" [ref=e157]:
+                - generic [ref=e158]: email failed
+              - cell "35" [ref=e159]
+              - cell "03 May 2026 05:39" [ref=e160]
+            - row "James Fletcher dibyendumondal87@gmail.com Tanzania Serengeti email sent 70 29 Apr 2026 06:26" [ref=e161] [cursor=pointer]:
+              - cell "James Fletcher" [ref=e162]
+              - cell "dibyendumondal87@gmail.com" [ref=e163]
+              - cell "Tanzania Serengeti" [ref=e164]
+              - cell "email sent" [ref=e165]:
+                - generic [ref=e166]: email sent
+              - cell "70" [ref=e167]
+              - cell "29 Apr 2026 06:26" [ref=e168]
+            - row "Priya Sharma priya.test.leadgen@gmail.com Tanzania Serengeti email failed 70 29 Apr 2026 06:25" [ref=e169] [cursor=pointer]:
+              - cell "Priya Sharma" [ref=e170]
+              - cell "priya.test.leadgen@gmail.com" [ref=e171]
+              - cell "Tanzania Serengeti" [ref=e172]
+              - cell "email failed" [ref=e173]:
+                - generic [ref=e174]: email failed
+              - cell "70" [ref=e175]
+              - cell "29 Apr 2026 06:25" [ref=e176]
+            - row "Dibyendu Mondal dibyendumondal87@gmail.com Kenya Masai Mara completed 70 29 Apr 2026 06:02" [ref=e177] [cursor=pointer]:
+              - cell "Dibyendu Mondal" [ref=e178]
+              - cell "dibyendumondal87@gmail.com" [ref=e179]
+              - cell "Kenya Masai Mara" [ref=e180]
+              - cell "completed" [ref=e181]:
+                - generic [ref=e182]: completed
+              - cell "70" [ref=e183]
+              - cell "29 Apr 2026 06:02" [ref=e184]
+            - row "Lena Fischer lena.fischer.test@example.com Botswana Okavango Delta email failed 70 29 Apr 2026 05:31" [ref=e185] [cursor=pointer]:
+              - cell "Lena Fischer" [ref=e186]
+              - cell "lena.fischer.test@example.com" [ref=e187]
+              - cell "Botswana Okavango Delta" [ref=e188]
+              - cell "email failed" [ref=e189]:
+                - generic [ref=e190]: email failed
+              - cell "70" [ref=e191]
+              - cell "29 Apr 2026 05:31" [ref=e192]
+            - row "Amara Diallo amara.diallo.test@example.com Rwanda Gorilla Trekking received — 29 Apr 2026 05:27" [ref=e193] [cursor=pointer]:
+              - cell "Amara Diallo" [ref=e194]
+              - cell "amara.diallo.test@example.com" [ref=e195]
+              - cell "Rwanda Gorilla Trekking" [ref=e196]
+              - cell "received" [ref=e197]:
+                - generic [ref=e198]: received
+              - cell "—" [ref=e199]
+              - cell "29 Apr 2026 05:27" [ref=e200]
+            - row "James Okafor james.okafor.test@example.com Tanzania Serengeti received — 29 Apr 2026 05:24" [ref=e201] [cursor=pointer]:
+              - cell "James Okafor" [ref=e202]
+              - cell "james.okafor.test@example.com" [ref=e203]
+              - cell "Tanzania Serengeti" [ref=e204]
+              - cell "received" [ref=e205]:
+                - generic [ref=e206]: received
+              - cell "—" [ref=e207]
+              - cell "29 Apr 2026 05:24" [ref=e208]
+            - row "Sarah Thompson sarah.thompson@example.com Kenya Masai Mara received — 29 Apr 2026 05:23" [ref=e209] [cursor=pointer]:
+              - cell "Sarah Thompson" [ref=e210]
+              - cell "sarah.thompson@example.com" [ref=e211]
+              - cell "Kenya Masai Mara" [ref=e212]
+              - cell "received" [ref=e213]:
+                - generic [ref=e214]: received
+              - cell "—" [ref=e215]
+              - cell "29 Apr 2026 05:23" [ref=e216]
+        - generic [ref=e217]:
+          - generic [ref=e218]: 1–12 of 12
+          - generic [ref=e219]:
+            - button "← Prev" [disabled] [ref=e220]
+            - button "Next →" [disabled] [ref=e221]
+  - generic [ref=e19]:
+    - heading "Lead Detail" [level=3] [ref=e20]
+    - button "✕ Close" [ref=e21] [cursor=pointer]

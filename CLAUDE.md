@@ -197,6 +197,12 @@ active → completed   (all steps sent)
 | 1C | Production hardening — failure alerting, SES bounce webhook, rate limiting, seed script, structured logging | **Complete** |
 | 2 | Multi-tenant admin dashboard — leads view, email history, cost tracking | **Complete** |
 | 3 | Webhook handling — SES bounce/complaint, reply detection | **Complete** |
+| Hotfixes (2026-05-06) | Email greeting fixed (`Hello, {first_name}` → `Hello {first_name}`); frontend API_BASE extracted to top-level config const; CORS whitelist expanded to include `localhost:5500`; admin "Converted" KPI renamed to "Sequence Completed" | **Complete** |
+| 4 | Conversion tracking, lead notes, UTM source tracking, CSV export, unsubscribe compliance | **Planned** |
+| 5 | Email intelligence — open/click tracking, per-lead preview, A/B subject testing | **Planned** |
+| 6 | Production infrastructure — HTTPS, env separation, DB backup, monitoring, SES production access | **Planned** |
+| 7 | Advanced features — WhatsApp follow-up, Calendly CTA, HubSpot bi-sync, lead assignment | **Planned** |
+| 8 | Multi-tenant SaaS — tenant management UI, white-label dashboard, usage/billing per tenant | **Planned** |
 
 ### Key non-obvious decisions made in Phase 1B
 - **Sync DB session for Celery** (`db/sync_session.py`): asyncpg is incompatible with Celery prefork workers. A separate psycopg2-backed sync session factory is used in all Celery tasks.
@@ -238,7 +244,8 @@ python -m http.server 5500 --directory admin
 
 # Option 2 — VS Code Live Server → point to admin/index.html
 
-# Default API target is http://localhost:8000 — change API_BASE in the <script> for other envs
+# Default API target is http://localhost:8000
+# To change: set API_BASE const at top of frontend/index.html (for form) or admin/index.html (for dashboard)
 ```
 
 Login flow: enter tenant slug + `ADMIN_API_KEY` value → credentials stored in `localStorage` for session persistence.

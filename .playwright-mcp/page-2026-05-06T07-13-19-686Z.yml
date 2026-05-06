@@ -1,0 +1,240 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: AH
+      - heading "Africa Horizons Travel" [level=1] [ref=e5]
+      - paragraph [ref=e7]: Tailor-made journeys across the African continent
+    - img
+  - generic [ref=e9]:
+    - generic [ref=e10]:
+      - paragraph [ref=e11]: Send us your details and one of our expert Travel Designers will craft a tailor-made itinerary just for you.
+      - generic [ref=e12]:
+        - generic [ref=e13]:
+          - heading "Personal Information" [level=3] [ref=e14]
+          - generic [ref=e15]:
+            - generic [ref=e16]:
+              - generic [ref=e17]: Full Name *
+              - textbox "Full Name *" [ref=e18]:
+                - /placeholder: Your full name
+            - generic [ref=e19]:
+              - generic [ref=e20]: Email Address *
+              - textbox "Email Address *" [ref=e21]:
+                - /placeholder: you@example.com
+        - generic [ref=e22]:
+          - heading "How Can We Reach You?" [level=3] [ref=e23]
+          - generic [ref=e24]:
+            - generic [ref=e25]:
+              - generic [ref=e26]: Country Code *
+              - combobox "Country Code *" [ref=e27] [cursor=pointer]:
+                - option "Country code" [disabled] [selected]
+                - option "+1 (USA/CA)"
+                - option "+44 (UK)"
+                - option "+91 (India)"
+                - option "+27 (South Africa)"
+                - option "+254 (Kenya)"
+                - option "+255 (Tanzania)"
+                - option "+250 (Rwanda)"
+                - option "+61 (Australia)"
+                - option "+49 (Germany)"
+                - option "+33 (France)"
+                - option "+39 (Italy)"
+                - option "+31 (Netherlands)"
+                - option "+34 (Spain)"
+                - option "+46 (Sweden)"
+                - option "+41 (Switzerland)"
+                - option "+971 (UAE)"
+                - option "+65 (Singapore)"
+                - option "+64 (New Zealand)"
+            - generic [ref=e28]:
+              - generic [ref=e29]: Cell Phone *
+              - textbox "Cell Phone *" [ref=e30]:
+                - /placeholder: Phone number
+            - generic [ref=e31]:
+              - generic [ref=e32]: Preferred Contact Method *
+              - combobox "Preferred Contact Method *" [ref=e33] [cursor=pointer]:
+                - option "How should we reach you?" [disabled] [selected]
+                - option "WhatsApp"
+                - option "Email"
+                - option "Call"
+        - generic [ref=e34]:
+          - heading "Your Destination" [level=3] [ref=e35]
+          - generic [ref=e37]:
+            - generic [ref=e38]: Destination Interest *
+            - combobox "Destination Interest *" [ref=e39] [cursor=pointer]:
+              - option "Select a destination" [disabled] [selected]
+              - option "Kenya · Masai Mara Safari"
+              - option "Tanzania · Serengeti National Park"
+              - option "Tanzania · Zanzibar Beach"
+              - option "South Africa · Cape Town & Winelands"
+              - option "South Africa · Kruger National Park"
+              - option "Rwanda · Gorilla Trekking"
+              - option "Uganda · Gorilla & Chimp Trek"
+              - option "Botswana · Okavango Delta"
+              - option "Zimbabwe · Victoria Falls"
+              - option "Zambia · Victoria Falls & Kafue"
+              - option "Namibia · Desert & Dunes Safari"
+              - option "Morocco · Imperial Cities Tour"
+              - option "Egypt · Nile & Pyramids"
+              - option "Ethiopia · Historical Circuit"
+              - option "Madagascar · Wildlife & Nature"
+              - option "Multiple Destinations (Custom Route)"
+        - generic [ref=e40]:
+          - heading "Estimated Travel Date" [level=3] [ref=e41]
+          - generic [ref=e42]:
+            - generic [ref=e43]:
+              - generic [ref=e44]: Month *
+              - combobox "Month *" [ref=e45] [cursor=pointer]:
+                - option "Month" [disabled] [selected]
+                - option "January"
+                - option "February"
+                - option "March"
+                - option "April"
+                - option "May"
+                - option "June"
+                - option "July"
+                - option "August"
+                - option "September"
+                - option "October"
+                - option "November"
+                - option "December"
+            - generic [ref=e46]:
+              - generic [ref=e47]: Year *
+              - combobox "Year *" [ref=e48] [cursor=pointer]:
+                - option "Year" [disabled] [selected]
+                - option "2025"
+                - option "2026"
+                - option "2027"
+                - option "2028"
+        - generic [ref=e49]:
+          - heading "Your Group" [level=3] [ref=e50]
+          - generic [ref=e51]:
+            - generic [ref=e52]:
+              - generic [ref=e53]: Number of Adults *
+              - combobox "Number of Adults *" [ref=e54] [cursor=pointer]:
+                - option "Adults" [disabled] [selected]
+                - option "1"
+                - option "2"
+                - option "3"
+                - option "4"
+                - option "5"
+                - option "6"
+                - option "7"
+                - option "8"
+                - option "9"
+                - option "10"
+                - option "10+"
+            - generic [ref=e55]:
+              - generic [ref=e56]: Kids under 12
+              - combobox "Kids under 12" [ref=e57] [cursor=pointer]:
+                - option "Children" [disabled] [selected]
+                - option "0"
+                - option "1"
+                - option "2"
+                - option "3"
+                - option "4"
+                - option "5"
+                - option "5+"
+            - generic [ref=e58]:
+              - generic [ref=e59]: Age Range of Adults
+              - combobox "Age Range of Adults" [ref=e60] [cursor=pointer]:
+                - option "Age range" [disabled] [selected]
+                - option "18–25"
+                - option "26–35"
+                - option "36–45"
+                - option "46–55"
+                - option "56–65"
+                - option "65+"
+                - option "Mixed ages"
+            - generic [ref=e61]:
+              - generic [ref=e62]: Trip Duration
+              - combobox "Trip Duration" [ref=e63] [cursor=pointer]:
+                - option "How many days?" [disabled] [selected]
+                - option "3–5 days"
+                - option "6–8 days"
+                - option "9–12 days"
+                - option "13–17 days"
+                - option "18–21 days"
+                - option "22+ days"
+                - option "Flexible"
+        - generic [ref=e64]:
+          - heading "Travel Preferences" [level=3] [ref=e65]
+          - generic [ref=e66]:
+            - generic [ref=e67]:
+              - generic [ref=e68]: Accommodation Category
+              - combobox "Accommodation Category" [ref=e69] [cursor=pointer]:
+                - option "Preferred accommodation" [disabled] [selected]
+                - option "3-star (Standard)"
+                - option "4-star (Superior)"
+                - option "5-star (Luxury)"
+                - option "Boutique / Safari Lodge"
+                - option "Ultra-luxury / Exclusive"
+                - option "Mixed (flexible)"
+            - generic [ref=e70]:
+              - generic [ref=e71]: Motivation for Trip
+              - combobox "Motivation for Trip" [ref=e72] [cursor=pointer]:
+                - option "What brings you?" [disabled] [selected]
+                - option "Honeymoon / Romance"
+                - option "Family Holiday"
+                - option "Adventure & Wildlife"
+                - option "Cultural Exploration"
+                - option "Photography Safari"
+                - option "Wellness & Relaxation"
+                - option "Bucket List Trip"
+                - option "Corporate / Group Retreat"
+                - option "Anniversary / Celebration"
+                - option "Other"
+            - generic [ref=e73]:
+              - generic [ref=e74]: Budget per Person (approx.)
+              - combobox "Budget per Person (approx.)" [ref=e75] [cursor=pointer]:
+                - option "Budget range" [disabled] [selected]
+                - option "Under $3,000"
+                - option "$3,000–$7,000"
+                - option "$7,000–$15,000"
+                - option "$15,000–$30,000"
+                - option "$30,000+"
+                - option "Prefer not to say"
+            - generic [ref=e76]:
+              - generic [ref=e77]: Other Comments or Special Requests
+              - textbox "Other Comments or Special Requests" [ref=e78]:
+                - /placeholder: Dietary requirements, mobility needs, special occasions, anything else…
+        - button "Send My Request →" [ref=e80] [cursor=pointer]:
+          - generic [ref=e81]: Send My Request
+          - generic [ref=e82]: →
+      - paragraph [ref=e83]:
+        - text: If you have not yet received the response from your Travel Designer, please check your
+        - strong [ref=e84]: SPAM FOLDER
+        - text: .
+    - paragraph [ref=e85]: Your information is handled with care and never shared with third parties.
+  - generic [ref=e87]:
+    - heading "What Happens Next" [level=3] [ref=e88]
+    - generic [ref=e89]:
+      - generic [ref=e90]:
+        - generic [ref=e91]: "01"
+        - generic [ref=e92]:
+          - strong [ref=e93]: Your enquiry is received
+          - paragraph [ref=e94]:
+            - text: We review your destination interest and travel details, usually within the hour. A personalised welcome email lands in your inbox shortly after —
+            - emphasis [ref=e95]: if you don't see it, please check your spam or junk folder.
+      - generic [ref=e96]:
+        - generic [ref=e97]: "02"
+        - generic [ref=e98]:
+          - strong [ref=e99]: A Travel Designer reaches out
+          - paragraph [ref=e100]: A dedicated Africa specialist will contact you within 24 hours via your preferred channel — WhatsApp, email, or call — to discuss your journey in detail.
+      - generic [ref=e101]:
+        - generic [ref=e102]: "03"
+        - generic [ref=e103]:
+          - strong [ref=e104]: Your itinerary takes shape
+          - paragraph [ref=e105]: We craft a fully tailor-made proposal covering flights, lodges, transfers, and curated experiences — no templates, no packages, nothing off the shelf.
+    - generic [ref=e106]:
+      - generic [ref=e107]:
+        - img [ref=e108]
+        - text: Your data is private & never sold
+      - generic [ref=e110]:
+        - img [ref=e111]
+        - text: Response within 24 hours
+      - generic [ref=e114]:
+        - img [ref=e115]
+        - text: No obligation to book
+      - generic [ref=e117]:
+        - img [ref=e118]
+        - text: Specialists in African travel

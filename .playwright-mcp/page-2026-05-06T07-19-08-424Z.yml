@@ -1,0 +1,20 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e6]: AH
+      - heading "Admin Dashboard" [level=2] [ref=e7]
+      - paragraph [ref=e8]: Lead Generation System
+    - generic [ref=e9]:
+      - generic [ref=e10]: Tenant Slug
+      - textbox "e.g. africa_travel" [ref=e11]: africa_travel
+    - generic [ref=e12]:
+      - generic [ref=e13]: Admin API Key
+      - textbox "Enter your admin API key" [ref=e14]
+    - button "Sign In" [ref=e15] [cursor=pointer]
+    - paragraph [ref=e16]:
+      - text: Set
+      - code [ref=e17]: ADMIN_API_KEY
+      - text: in your .env file
+  - generic [ref=e19]:
+    - heading "Lead Detail" [level=3] [ref=e20]
+    - button "✕ Close" [ref=e21] [cursor=pointer]

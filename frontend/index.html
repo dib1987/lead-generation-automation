@@ -616,6 +616,13 @@
 
   <script>
     // ═══════════════════════════════════════════════════════════
+    //  ENV CONFIG — set API_BASE to match your environment.
+    //  Dev:  http://localhost:8000
+    //  Prod: https://your-api-domain.com
+    // ═══════════════════════════════════════════════════════════
+    const API_BASE = "http://localhost:8000";
+
+    // ═══════════════════════════════════════════════════════════
     //  FORM_CONFIG — change this object to switch domains.
     //  Nothing below this block should need editing.
     // ═══════════════════════════════════════════════════════════
@@ -629,7 +636,7 @@
         hero_gradient:   "linear-gradient(135deg, #1B4332 0%, #2D6A4F 40%, #D4703A 100%)",
       },
       api: {
-        endpoint:        "/api/v1/leads/africa_travel",
+        endpoint:        `${API_BASE}/api/v1/leads/africa_travel`,
         success_message: "Thank you! Your Travel Designer will contact you within 24 hours. Please check your spam folder if you don't hear from us.",
       },
       sections: [
