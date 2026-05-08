@@ -16,6 +16,7 @@ from pathlib import Path
 
 from sqlalchemy import select
 
+from app.core.settings import settings
 from app.db.sync_session import get_sync_session
 from app.models.audit_log import AuditLog
 from app.models.campaign import Campaign
@@ -135,9 +136,12 @@ def _run(lead_id: str) -> None:
         )
         session.commit()
 
-        # 6. Score lead
+        # 6. Score lead + assign unsubscribe token
         score = _score_lead(lead.form_data)
         lead.lead_score = score
+        if not lead.unsubscribe_token:
+            lead.unsubscribe_token = uuid.uuid4()
+        unsubscribe_url = f"{settings.app_base_url}/api/v1/unsubscribe/{lead.unsubscribe_token}"
 
         # 7. Find or create Campaign DB row (bootstrapped from JSON on first run)
         campaign = session.execute(
@@ -191,6 +195,7 @@ def _run(lead_id: str) -> None:
                 tenant_config=tenant_config,
                 step_number=0,
                 campaign_enrollment_id=None,
+                unsubscribe_url=unsubscribe_url,
             )
         except Exception as exc:
             logger.error("process_lead: SES failed for lead %s: %s", lead_id, exc)

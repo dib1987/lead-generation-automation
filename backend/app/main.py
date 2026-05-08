@@ -11,6 +11,7 @@ from app.api.v1.health import router as health_router
 from app.api.v1.leads import router as leads_router
 from app.api.v1.webhooks import router as webhooks_router
 from app.api.v1.admin import router as admin_router
+from app.api.v1.unsubscribe import router as unsubscribe_router
 
 _FRONTEND_DIR = os.path.join(os.path.dirname(__file__), "..", "frontend")
 
@@ -44,6 +45,7 @@ def create_app() -> FastAPI:
     app.include_router(leads_router, prefix="/api/v1/leads")
     app.include_router(webhooks_router, prefix="/api/v1/webhooks")
     app.include_router(admin_router, prefix="/api/v1/admin")
+    app.include_router(unsubscribe_router, prefix="/api/v1")
 
     frontend_dir = os.path.normpath(_FRONTEND_DIR)
     if os.path.isdir(frontend_dir):

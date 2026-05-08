@@ -15,6 +15,7 @@ from pathlib import Path
 
 from sqlalchemy import select
 
+from app.core.settings import settings
 from app.db.sync_session import get_sync_session
 from app.models.campaign import Campaign
 from app.models.campaign_enrollment import CampaignEnrollment
@@ -53,8 +54,22 @@ def _process_enrollment(enrollment_id: uuid.UUID) -> None:
             logger.error("run_followup: missing related record for enrollment %s", enrollment_id)
             return
 
+        if lead.unsubscribed_at:
+            logger.info("run_followup: lead %s unsubscribed — skipping enrollment %s", lead.id, enrollment_id)
+            enrollment.status = "paused"
+            audit_service.write_audit_log(
+                session, enrollment.tenant_id, enrollment.lead_id,
+                "followup_skipped_unsubscribed", "active", "paused",
+            )
+            return
+
         tenant_config = _load_tenant_config(tenant.slug)
         campaign_config = _load_campaign_config(campaign.slug)
+
+        unsubscribe_url = (
+            f"{settings.app_base_url}/api/v1/unsubscribe/{lead.unsubscribe_token}"
+            if lead.unsubscribe_token else None
+        )
 
         next_step_index = enrollment.current_step + 1
         if next_step_index >= len(campaign_config["steps"]):
@@ -103,6 +118,7 @@ def _process_enrollment(enrollment_id: uuid.UUID) -> None:
                 tenant_config=tenant_config,
                 step_number=next_step_index,
                 campaign_enrollment_id=enrollment.id,
+                unsubscribe_url=unsubscribe_url,
             )
         except Exception as exc:
             logger.error(

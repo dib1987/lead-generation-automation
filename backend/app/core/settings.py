@@ -49,5 +49,8 @@ class Settings(BaseSettings):
     # Admin dashboard — API key guards /api/v1/admin/* endpoints; leave empty to disable auth
     admin_api_key: str = ""
 
+    # Public base URL used to build unsubscribe links in outgoing emails
+    app_base_url: str = "http://localhost:8000"
+
 
 settings = Settings()

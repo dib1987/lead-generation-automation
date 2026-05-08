@@ -20,6 +20,13 @@ _HTML_ENVELOPE = """\
 </html>"""
 
 
+_UNSUBSCRIBE_FOOTER = (
+    '<p style="font-size:11px;color:#999;margin-top:32px;border-top:1px solid #eee;'
+    'padding-top:16px;">You are receiving this because you submitted a travel enquiry to'
+    ' {company_name}. <a href="{url}" style="color:#999;">Unsubscribe</a> at any time.</p>'
+)
+
+
 def send_email(
     session: Session,
     tenant_id: uuid.UUID,
@@ -30,6 +37,7 @@ def send_email(
     tenant_config: dict,
     step_number: int = 0,
     campaign_enrollment_id: uuid.UUID | None = None,
+    unsubscribe_url: str | None = None,
 ) -> str:
     """
     Send an HTML email via AWS SES. Write EmailLog row regardless of outcome.
@@ -41,6 +49,12 @@ def send_email(
     from_name = tenant_config.get("ses", {}).get("from_name", tenant_config.get("name", ""))
     reply_to = tenant_config.get("ses", {}).get("reply_to", "")
     sender = f"{from_name} <{settings.ses_verified_sender}>"
+
+    if unsubscribe_url:
+        company_name = tenant_config.get("name", "our team")
+        html_body = html_body + _UNSUBSCRIBE_FOOTER.format(
+            company_name=company_name, url=unsubscribe_url
+        )
 
     full_html = _HTML_ENVELOPE.format(body=html_body)
     body_preview = html_body[:500] if html_body else None

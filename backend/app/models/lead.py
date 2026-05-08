@@ -23,6 +23,10 @@ class Lead(Base):
     lead_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
     crm_contact_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     crm_synced_at: Mapped[datetime | None] = mapped_column(nullable=True)
+    unsubscribe_token: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), nullable=True, unique=True, index=True
+    )
+    unsubscribed_at: Mapped[datetime | None] = mapped_column(nullable=True)
     created_at: Mapped[datetime] = mapped_column(server_default=text("now()"), index=True)
     updated_at: Mapped[datetime] = mapped_column(
         server_default=text("now()"),
