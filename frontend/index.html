@@ -974,6 +974,14 @@
 
       const payload = serialize(FORM_CONFIG);
 
+      // Silently append UTM params from the URL — never shown to the user,
+      // only captured if present. Harmless when the URL has no UTM params.
+      const _utmParams = new URLSearchParams(window.location.search);
+      ['utm_source', 'utm_medium', 'utm_campaign'].forEach(k => {
+        const v = _utmParams.get(k);
+        if (v) payload[k] = v;
+      });
+
       try {
         const res = await fetch(FORM_CONFIG.api.endpoint, {
           method:  'POST',

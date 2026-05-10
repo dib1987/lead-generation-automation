@@ -88,13 +88,18 @@ async def create_lead(
                 )
 
     # 3. Create new Lead row
-    form_data = payload.model_dump(mode="json")
+    # UTM fields are excluded from form_data — they are stored in dedicated columns,
+    # not mixed into the questionnaire blob that Claude reads for email personalization.
+    form_data = payload.model_dump(mode="json", exclude={"utm_source", "utm_medium", "utm_campaign"})
     lead = Lead(
         tenant_id=tenant.id,
         email_address=email,
         form_data=form_data,
         status="received",
     )
+    lead.utm_source   = payload.utm_source
+    lead.utm_medium   = payload.utm_medium
+    lead.utm_campaign = payload.utm_campaign
     session.add(lead)
     await session.flush()   # get the UUID
     await session.commit()  # commit BEFORE enqueuing — Celery task must find the row in DB

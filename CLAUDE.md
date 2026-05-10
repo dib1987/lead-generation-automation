@@ -114,6 +114,11 @@ GET /api/v1/admin/{tenant_slug}/leads          → paginated list (filter by sta
 GET /api/v1/admin/{tenant_slug}/leads/{id}     → lead detail + email logs + audit trail
 GET /api/v1/admin/{tenant_slug}/email-logs     → paginated email log (filter by status/lead_id)
 All admin routes require X-Admin-Key header matching ADMIN_API_KEY
+
+GET /api/v1/unsubscribe/{token}
+  → public endpoint — token is the only auth
+  → sets lead.unsubscribed_at, pauses active enrollments, writes audit log
+  → returns HTML confirmation page (invalid/expired token → graceful error page)
 ```
 
 ### Non-obvious design decisions
@@ -161,7 +166,7 @@ received → processing → email_sent → (campaign active) → completed
 
 ```
 active → completed   (all steps sent)
-       → paused      (bounce or complaint received)
+       → paused      (bounce, complaint, or unsubscribe received)
        → replied     (prospect replied — stops sequence immediately)
 ```
 
@@ -185,6 +190,7 @@ active → completed   (all steps sent)
 | `ADMIN_ALERT_EMAIL` | "" | Phase 1C — failure alert emails |
 | `WEBHOOK_SECRET` | "" | Phase 1C — guards /webhooks/ses endpoint |
 | `ADMIN_API_KEY` | "" | Phase 2 — guards /api/v1/admin/* endpoints; leave empty to disable auth |
+| `APP_BASE_URL` | http://localhost:8000 | Phase 5A — base URL for unsubscribe links in outgoing emails; set to public domain in production |
 
 ---
 
@@ -198,8 +204,9 @@ active → completed   (all steps sent)
 | 2 | Multi-tenant admin dashboard — leads view, email history, cost tracking | **Complete** |
 | 3 | Webhook handling — SES bounce/complaint, reply detection | **Complete** |
 | Hotfixes (2026-05-06) | Email greeting fixed (`Hello, {first_name}` → `Hello {first_name}`); frontend API_BASE extracted to top-level config const; CORS whitelist expanded to include `localhost:5500`; admin "Converted" KPI renamed to "Sequence Completed" | **Complete** |
-| 4 | Conversion tracking, lead notes, UTM source tracking, CSV export, unsubscribe compliance | **Planned** |
-| 5 | Email intelligence — open/click tracking, per-lead preview, A/B subject testing | **Planned** |
+| 5A (2026-05-08) | Unsubscribe link — CAN-SPAM compliance; token per lead, footer in every email, confirmation page, audit log | **Complete** |
+| 4 | Conversion tracking (4A), lead notes (4B), UTM tracking (4C), CSV export (4D) | **Planned** |
+| 5 | Email open/click tracking (5B, 5C), per-lead preview, A/B subject testing | **Planned** |
 | 6 | Production infrastructure — HTTPS, env separation, DB backup, monitoring, SES production access | **Planned** |
 | 7 | Advanced features — WhatsApp follow-up, Calendly CTA, HubSpot bi-sync, lead assignment | **Planned** |
 | 8 | Multi-tenant SaaS — tenant management UI, white-label dashboard, usage/billing per tenant | **Planned** |
@@ -230,6 +237,15 @@ active → completed   (all steps sent)
 - **`replied_at` column on `campaign_enrollments`**: Migration `a7f3c891d042` adds a nullable `DateTime` column. Set when an enrollment transitions to `replied`.
 - **Admin alert on reply**: `send_admin_alert()` fires when a reply is matched — a reply is a high-intent signal and the admin should know immediately.
 - **Infrastructure prerequisite**: SES inbound receipt rules must be configured manually in AWS to publish to an SNS topic that delivers to this webhook endpoint. The code handles the notification; the AWS wiring is ops config.
+
+### Key non-obvious decisions made in Phase 5A
+- **Token stored on `leads` table** (`unsubscribe_token` UUID, unique index): kept simple — no separate preferences table. Two columns added: `unsubscribe_token` and `unsubscribed_at`. Migration `f1c9a2d0e8b3`.
+- **Token generated in `process_lead`** before the Day 0 email is sent. Guard `if not lead.unsubscribe_token` makes it idempotent across retries.
+- **Footer injected in `email_service.send_email()`** after Claude returns the body, before the HTML envelope is applied. This is deterministic — Claude never sees or controls the footer. Pass `unsubscribe_url=None` to omit (e.g. admin alert emails).
+- **`datetime.utcnow()` not `datetime.now(timezone.utc)`** for `unsubscribed_at`: asyncpg rejects a timezone-aware datetime into a `TIMESTAMP WITHOUT TIME ZONE` column when the same UPDATE also sets `updated_at` via `onupdate=datetime.utcnow` (naive). Mixing tz-aware and tz-naive in one flush causes a DataError.
+- **`APP_BASE_URL` setting** (default `http://localhost:8000`) builds the unsubscribe link. In production set it to the public domain in `.env`. No code change needed.
+- **Dedup + unsubscribe interaction**: clicking unsubscribe sets `enrollment.status = paused`. A paused enrollment is no longer "active", so the 30-day dedup check will allow the lead to re-enter the pipeline if they submit the form again.
+- **Public route — no auth**: the UUID token is the only protection. Invalid or unknown tokens return a graceful HTML page, never a 500.
 
 ---
 

@@ -38,6 +38,9 @@
     .badge-complaint  { background: #FFE8CC; color: #E67700; }
     .badge-paused     { background: #FFF0F6; color: #C2255C; }
     .badge-replied    { background: #FFF9DB; color: #E67700; font-weight: 700; }
+    .badge-booked     { background: #F3F0FF; color: #6741D9; font-weight: 700; }
+    .btn-booked { background: #6741D9; color: #fff; border: none; padding: 9px 20px; border-radius: 6px; font-family: 'Jost', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: background .2s; }
+    .btn-booked:hover { background: #5A35C0; }
     .card { background: #fff; border: 1px solid var(--border); border-radius: 10px; }
     input, select { font-family: 'Jost', sans-serif; }
     .sidebar-link { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 8px; color: var(--muted); font-size: 14px; font-weight: 500; cursor: pointer; transition: background .15s, color .15s; }
@@ -183,6 +186,7 @@
             <option value="email_sent">Email Sent</option>
             <option value="email_failed">Email Failed</option>
             <option value="completed">Completed</option>
+            <option value="booked">Booked</option>
           </select>
           <div style="position:relative;flex:1;min-width:200px">
             <svg width="14" height="14" fill="none" stroke="var(--muted)" stroke-width="2" viewBox="0 0 24 24" style="position:absolute;left:10px;top:50%;transform:translateY(-50%)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -190,11 +194,15 @@
               style="width:100%;padding:8px 12px 8px 32px;border:1px solid var(--border);border-radius:6px;font-size:13px;outline:none" />
           </div>
           <button class="btn-ghost" onclick="loadLeads(1)" style="padding:8px 16px">Refresh</button>
+          <button class="btn-ghost" onclick="exportCSV()" style="padding:8px 16px;display:flex;align-items:center;gap:6px">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export CSV
+          </button>
         </div>
         <div class="card" style="overflow:hidden">
           <table>
             <thead><tr>
-              <th>Name</th><th>Email</th><th>Destination</th><th>Status</th><th>Score</th><th>Created</th>
+              <th>Name</th><th>Email</th><th>Destination</th><th>Status</th><th>Score</th><th>Source</th><th>Created</th>
             </tr></thead>
             <tbody id="leads-tbody"><tr><td colspan="6" class="empty-state"><div class="spinner"></div></td></tr></tbody>
           </table>
@@ -368,10 +376,11 @@ async function loadDashboard() {
       { label: 'Emails Sent', value: d.emails_sent },
       { label: 'Avg Lead Score', value: d.avg_lead_score != null ? d.avg_lead_score.toFixed(1) : '—' },
       { label: 'Sequence Completed', value: d.leads_by_status['completed'] ?? 0 },
+      { label: 'Booked', value: d.booked_count ?? 0, highlight: true },
     ];
     grid.innerHTML = kpis.map(k => `
-      <div class="kpi-card">
-        <div class="kpi-value">${k.value}</div>
+      <div class="kpi-card" ${k.highlight ? 'style="border-color:#6741D9;border-width:2px"' : ''}>
+        <div class="kpi-value" ${k.highlight ? 'style="color:#6741D9"' : ''}>${k.value}</div>
         <div class="kpi-label">${k.label}</div>
       </div>`).join('');
 
@@ -381,6 +390,7 @@ async function loadDashboard() {
       email_sent:  { label: 'Email Sent',  color: '#2F9E44' },
       email_failed:{ label: 'Failed',      color: '#E03131' },
       completed:   { label: 'Completed',   color: '#0C8599' },
+      booked:      { label: 'Booked',      color: '#6741D9' },
     };
     const total = d.total_leads || 1;
     const bars = Object.entries(d.leads_by_status).map(([status, cnt]) => {
@@ -432,6 +442,7 @@ async function loadLeads(page) {
           <td>${esc(l.destination)}</td>
           <td><span class="badge badge-${l.status}">${l.status.replace('_',' ')}</span></td>
           <td>${l.lead_score != null ? `<span style="font-weight:600;color:var(--green)">${l.lead_score}</span>` : '<span style="color:var(--muted)">—</span>'}</td>
+          <td style="color:var(--muted)">${l.utm_source ? esc(l.utm_source) : '—'}</td>
           <td style="color:var(--muted)">${fmtDate(l.created_at)}</td>
         </tr>`).join('');
     }
@@ -505,12 +516,14 @@ function renderLeadDetail(lead) {
 
   document.getElementById('detail-panel-body').innerHTML = `
     <div style="margin-bottom:20px">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap">
         <h3 style="margin:0;font-size:20px">${esc(lead.form_data.full_name || lead.email_address)}</h3>
         <span class="badge badge-${lead.status}">${lead.status.replace('_',' ')}</span>
+        ${lead.status !== 'booked' ? `<button class="btn-booked" onclick="markAsBooked('${lead.id}')">✓ Mark as Booked</button>` : `<span style="font-size:12px;color:#6741D9;font-weight:600">Booked ${lead.booked_at ? '· ' + fmtDate(lead.booked_at) : ''}</span>`}
       </div>
       <div style="font-size:13px;color:var(--muted)">${esc(lead.email_address)} · Score: <strong style="color:var(--green)">${lead.lead_score ?? '—'}</strong></div>
       ${lead.crm_contact_id ? `<div style="font-size:12px;color:var(--muted);margin-top:4px">HubSpot ID: ${lead.crm_contact_id}</div>` : ''}
+      ${(lead.utm_source || lead.utm_medium || lead.utm_campaign) ? `<div style="font-size:12px;color:var(--muted);margin-top:4px">Source: <strong>${esc(lead.utm_source || '—')}</strong>${lead.utm_medium ? ' · Medium: <strong>' + esc(lead.utm_medium) + '</strong>' : ''}${lead.utm_campaign ? ' · Campaign: <strong>' + esc(lead.utm_campaign) + '</strong>' : ''}</div>` : ''}
     </div>
     <div style="margin-bottom:24px">
       <h4 style="font-size:14px;margin:0 0 10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Form Data</h4>
@@ -529,6 +542,62 @@ function renderLeadDetail(lead) {
 function closePanel() {
   document.getElementById('panel-overlay').classList.remove('open');
   document.getElementById('detail-panel').classList.remove('open');
+}
+
+async function markAsBooked(leadId) {
+  const btn = document.querySelector('.btn-booked');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+  try {
+    const r = await fetch(`${API_BASE}/api/v1/admin/${state.tenant}/leads/${leadId}/mark-booked`, {
+      method: 'PATCH',
+      headers: { 'X-Admin-Key': state.apiKey },
+    });
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({}));
+      alert(err.detail || `Error ${r.status}`);
+      if (btn) { btn.disabled = false; btn.textContent = '✓ Mark as Booked'; }
+      return;
+    }
+    const updated = await r.json();
+    renderLeadDetail(updated);
+    loadLeads(state.leadsPage);
+    loadDashboard();
+  } catch (e) {
+    alert('Could not reach the API.');
+    if (btn) { btn.disabled = false; btn.textContent = '✓ Mark as Booked'; }
+  }
+}
+
+function exportCSV() {
+  const status = document.getElementById('leads-status-filter').value;
+  const q      = document.getElementById('leads-search').value.trim();
+  let url = `${API_BASE}/api/v1/admin/${state.tenant}/leads/export`;
+  const params = [];
+  if (status) params.push(`status=${encodeURIComponent(status)}`);
+  if (q)      params.push(`q=${encodeURIComponent(q)}`);
+  if (params.length) url += '?' + params.join('&');
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.setAttribute('download', '');
+  // Auth header can't be set on a direct download link — use a fetch blob approach
+  fetch(url, { headers: { 'X-Admin-Key': state.apiKey } })
+    .then(r => {
+      if (!r.ok) throw new Error(`Error ${r.status}`);
+      const disposition = r.headers.get('Content-Disposition') || '';
+      const match = disposition.match(/filename=([^;]+)/);
+      const filename = match ? match[1] : 'leads.csv';
+      return r.blob().then(blob => ({ blob, filename }));
+    })
+    .then(({ blob, filename }) => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    })
+    .catch(e => alert('Export failed: ' + e.message));
 }
 
 // ── Email Preview Modal ───────────────────────────────────

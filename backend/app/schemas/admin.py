@@ -35,6 +35,7 @@ class LeadSummary(BaseModel):
     created_at: datetime
     full_name: str
     destination: str
+    utm_source: Optional[str] = None
 
     model_config = {"from_attributes": True}
 
@@ -55,8 +56,12 @@ class LeadDetailResponse(BaseModel):
     form_data: dict
     created_at: datetime
     updated_at: datetime
+    booked_at: Optional[datetime] = None
     email_logs: list[EmailLogSummary]
     audit_trail: list[AuditEntry]
+    utm_source:   Optional[str] = None
+    utm_medium:   Optional[str] = None
+    utm_campaign: Optional[str] = None
 
     model_config = {"from_attributes": True}
 
@@ -73,3 +78,4 @@ class DashboardResponse(BaseModel):
     leads_by_status: dict[str, int]
     emails_sent: int
     avg_lead_score: Optional[float]
+    booked_count: int = 0

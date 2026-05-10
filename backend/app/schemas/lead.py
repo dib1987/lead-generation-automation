@@ -40,6 +40,9 @@ class LeadCreateRequest(BaseModel):
     trip_motivation: Optional[str] = None
     budget_range: Optional[str] = None
     special_requests: Optional[str] = None
+    utm_source:   Optional[str] = None
+    utm_medium:   Optional[str] = None
+    utm_campaign: Optional[str] = None
 
     @model_validator(mode="before")
     @classmethod

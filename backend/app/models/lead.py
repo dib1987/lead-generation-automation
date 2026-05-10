@@ -27,6 +27,10 @@ class Lead(Base):
         UUID(as_uuid=True), nullable=True, unique=True, index=True
     )
     unsubscribed_at: Mapped[datetime | None] = mapped_column(nullable=True)
+    booked_at: Mapped[datetime | None] = mapped_column(nullable=True)
+    utm_source:   Mapped[str | None] = mapped_column(String(255), nullable=True)
+    utm_medium:   Mapped[str | None] = mapped_column(String(255), nullable=True)
+    utm_campaign: Mapped[str | None] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(server_default=text("now()"), index=True)
     updated_at: Mapped[datetime] = mapped_column(
         server_default=text("now()"),
